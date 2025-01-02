@@ -5,13 +5,13 @@ import {
   faCheck,
   faPaperPlane,
 } from '@fortawesome/free-solid-svg-icons'
-import clsx from 'clsx';
 
 import Card from './Card';
 
 interface ColumnProps {
   title: string;
   color: string;
+  kind: string;
   orders: any[];
 }
 
@@ -49,8 +49,8 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind }) => {
         </div>
       </div>
       <div
-        className={'overflow-y-auto max-h-[900px]'}
-        style={{ maxHeight: 'calc(100vh - 200px)' }}
+        className={'overflow-y-auto max-h-[700px]'}
+        style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
         {orders.map((order) => (
           <Card key={order.orderId} {...order} onActionClick={handleActionClick} />
