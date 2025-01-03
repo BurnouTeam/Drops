@@ -6,6 +6,7 @@ interface ModalProps {
   onConfirm: () => void;
   title: string;
   subtitle: string;
+  data?: string;
   confirmText?: string;
   cancelText?: string;
 }
@@ -16,6 +17,7 @@ const Modal: React.FC<ModalProps> = ({
   onConfirm,
   title,
   subtitle,
+  data,
   confirmText = "Confirmar",
   cancelText = "Cancelar",
 }) => {
@@ -30,7 +32,8 @@ const Modal: React.FC<ModalProps> = ({
             &#x2715; {/* Close Icon */}
           </button>
         </div>
-        <p className="text-gray-600 mb-6">{subtitle}</p>
+        <p className="text-gray-600 mb-6">{subtitle}<span className="font-bold">{data?" " + data:""}</span>.</p>
+        <p className="text-gray-600 mb-6">Deseja continuar?</p>
         <div className="flex justify-end space-x-4">
           <button
             onClick={onClose}

@@ -8,24 +8,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Table from "./Table";
 import ProductInsertModal from "./ProductInsertModal";
+import ProductEditModal from "./ProductEditModal";
+import Modal from "./Modal";
 import FilterButton from "./FilterButton";
 
-type Product = {
-  name: string;
-  type: string;
-  value: string;
-  quantity: number;
-  status: "Em Estoque" | "Baixo Estoque" | "Sem Estoque";
-};
 
 const products: Product[] = [
-  { name: "Naturágua", type: "20L", value: "R$ 13,00", quantity: 100, status: "Em Estoque" },
-  { name: "Naturágua", type: "5L", value: "R$ 5,00", quantity: 50, status: "Em Estoque" },
-  { name: "Serra Grande", type: "20L", value: "R$ 10,00", quantity: 20, status: "Em Estoque" },
-  { name: "Límpida", type: "20L", value: "R$ 9,00", quantity: 20, status: "Em Estoque" },
-  { name: "Água Azul", type: "20L", value: "R$ 9,00", quantity: 5, status: "Baixo Estoque" },
-  { name: "Pacoty", type: "20L", value: "R$ 10,00", quantity: 20, status: "Em Estoque" },
-  { name: "Indaiá", type: "20L", value: "R$ 13,00", quantity: 0, status: "Sem Estoque" },
+  { name: "Naturágua", type: "20L", value: 13.00, quantity: 100, status: "Em Estoque" },
+  { name: "Naturágua", type: "5L", value: 5.00, quantity: 50, status: "Em Estoque" },
+  { name: "Serra Grande", type: "20L", value: 10.00, quantity: 20, status: "Em Estoque" },
+  { name: "Límpida", type: "20L", value: 9.00, quantity: 20, status: "Em Estoque" },
+  { name: "Água Azul", type: "20L", value: 9.00, quantity: 5, status: "Baixo Estoque" },
+  { name: "Pacoty", type: "20L", value: 10.00, quantity: 20, status: "Em Estoque" },
+  { name: "Indaiá", type: "20L", value: 13.00, quantity: 0, status: "Sem Estoque" },
 ];
 
 const ProductPanel: React.FC = () => {
@@ -34,7 +29,43 @@ const ProductPanel: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Omit<Product,"status"> | null>(null);
+
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleOpenModal = (modal: string, data?: Omit<Product,"status">) => {
+    switch (modal){
+      case "new":
+        setIsNewModalOpen(true)
+        break;
+      case "edit":
+        setIsEditModalOpen(true)
+      console.log(data)
+        setSelectedProduct(data)
+        break;
+      case "delete":
+        setIsDeleteModalOpen(true)
+        break;
+      default:
+        break;
+    }
+  };
+  const handleCloseModal = (modal: string) => {
+    switch (modal){
+      case "new":
+        setIsNewModalOpen(false)
+        break;
+      case "edit":
+        setIsEditModalOpen(false)
+        break;
+      case "delete":
+        setIsDeleteModalOpen(false)
+        break;
+    }
+  };
+
 
   const handleSort = (field: keyof Product) => {
     if (sortField === field) {
@@ -45,8 +76,6 @@ const ProductPanel: React.FC = () => {
     }
   };
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
 
   return (
     <div className="py-6 px-8">
@@ -67,7 +96,7 @@ const ProductPanel: React.FC = () => {
             setFilterStatus(status);
           }} />
           <button
-            onClick={handleOpenModal}
+            onClick={() => handleOpenModal("new")}
             className="bg-blue-500 text-white px-4 py-4 rounded-xl flex items-center"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
@@ -89,18 +118,21 @@ const ProductPanel: React.FC = () => {
         filterType={filterType}
         filterStatus={filterStatus}
         onSort={handleSort}
-        actions={(product) => (
+        actions={(data) => (
           <>
-            <button className="mr-6">
+            <button className="mr-6" onClick={() => handleOpenModal("edit", data)}>
               <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" />
             </button>
-            <button>
+            <button onClick={() => handleOpenModal("delete", data)}>
               <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" />
             </button>
           </>
         )}
       />
-      <ProductInsertModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      {/* TODO: Passar a ação ao confirmar a deleção do item */}
+      <Modal isOpen={isDeleteModalOpen} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
+      <ProductInsertModal isOpen={isNewModalOpen} onClose={() => handleCloseModal("new")} />
+      <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
   );
 };
