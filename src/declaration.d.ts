@@ -28,3 +28,9 @@ type Order = {
   payment: string;
   time: string;
 }
+
+type Client = {
+  name: string;
+  phone: string;
+  address: string;
+};
