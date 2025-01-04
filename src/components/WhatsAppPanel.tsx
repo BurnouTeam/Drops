@@ -40,11 +40,11 @@ const Sidebar: React.FC<SidebarProps> = ({ handleClick, selectedChat, chatMessag
       {chatMessages.map((chat, index) => (
         <div className="flex flex-row">
           <button onClick={() => {handleClick(index);console.log(index)}} key={chat.id} className="flex-grow" >
-            <div className={`flex items-center justify-center px-2 py-3 hover:bg-gray-200 cursor-pointer border-b border-gray-300 ${chat.id - 1 === selectedChat? "bg-blue-100" : ""}`}>
+            <div className={`flex items-center px-2 py-3 hover:bg-gray-200 cursor-pointer border-b border-gray-300 ${chat.id - 1 === selectedChat? "bg-blue-100" : ""}`}>
               <FontAwesomeIcon icon={faUserCircle} className="text-3xl text-gray-600 mr-3" />
-              <div className="">
-                <div className="text-left font-semibold ">{chat.name}  <span className="font-light ">{chat.phone}</span></div>
-                <div className="text-sm text-gray-500">
+              <div className="flex flex-col justify-items-start">
+                <div className="text-left font-semibold ">{chat.name} <span className="font-light ">{chat.phone}</span></div>
+                <div className="text-left text-sm text-gray-500">
                   {chat.messages[chat.messages.length - 1].text}
                 </div>
               </div>
