@@ -99,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
             />
             <div className="flex items-center space-x-2">
               <img
-                src="https://www.xsgames.co/randomusers/avatar.php?g=male"
+                src="profile.jpg"
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
