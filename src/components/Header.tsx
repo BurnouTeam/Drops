@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,18 +10,17 @@ import {
   faSearch,
   faBell,
   faSignOutAlt,
-  faPen,
-  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import Dashboard from './Dashboard';
-import ProductPanel from './ProductPanel.tsx';
-import ClientPanel from './ClientPanel.tsx';
-import WhatsAppPanel from './WhatsAppPanel.tsx';
 import { Drops } from '../assets/drops.jsx'
 
 
-const Header: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+interface HeaderProps {
+  onChangeTab: Dispatch<SetStateAction<string>>
+  selectedTab: string
+}
+
+
+const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
   const navigate = useNavigate();
 
   const onLogOff = () => {
@@ -29,26 +28,8 @@ const Header: React.FC = () => {
     navigate("/");
   }
 
-  // Tab content mapping
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <Dashboard />
-      case "mensagens":
-        return <WhatsAppPanel/>
-      case "configuracoes":
-        return <div>Adjust your configurations here.</div>;
-      case "produtos":
-        return <ProductPanel />
-      case "clientes":
-        return <ClientPanel />
-      default:
-        return <div>Crie seu painel aqui.</div>;
-    }
-  };
-
   return (
-    <div className="flex flex-col h-screen">
+    <div>
       {/* Header Section */}
       <header className="bg-white w-full py-4 px-8 shadow-md">
         <div className="flex items-center justify-between">
@@ -61,45 +42,45 @@ const Header: React.FC = () => {
           <nav className="flex items-center space-x-8">
             <button
               className={`${
-                activeTab === "dashboard" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                selectedTab === "dashboard" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => onChangeTab("dashboard")}
             >
               <FontAwesomeIcon icon={faTableColumns} />
               <span>Dashboard</span>
             </button>
             <button
               className={`${
-                activeTab === "mensagens" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                selectedTab === "mensagens" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => setActiveTab("mensagens")}
+              onClick={() => onChangeTab("mensagens")}
             >
               <FontAwesomeIcon icon={faComments} />
               <span>Mensagens</span>
             </button>
             <button
               className={`${
-                activeTab === "produtos" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                selectedTab === "produtos" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => setActiveTab("produtos")}
+              onClick={() => onChangeTab("produtos")}
             >
               <FontAwesomeIcon icon={faCartShopping} />
               <span>Produtos</span>
             </button>
             <button
               className={`${
-                activeTab === "clientes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                selectedTab === "clientes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg  rounded-md hover:text-blue-700`}
-              onClick={() => setActiveTab("clientes")}
+              onClick={() => onChangeTab("clientes")}
             >
               <FontAwesomeIcon icon={faPerson} />
               <span>Clientes</span>
             </button>
             <button
               className={`${
-                activeTab === "configuracoes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                selectedTab === "configuracoes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => setActiveTab("configuracoes")}
+              onClick={() => onChangeTab("configuracoes")}
             >
               <FontAwesomeIcon icon={faGear} />
               <span>Configurações</span>
@@ -135,9 +116,9 @@ const Header: React.FC = () => {
       </header>
 
       {/* Tab Content Section */}
-        <main className="flex-grow p-8 bg-[#FAFAFA]">
-          {renderTabContent()}
-        </main>
+        {/* <main className="flex-grow p-8 bg-[#FAFAFA]"> */}
+        {/*   {renderTabContent()} */}
+        {/* </main> */}
     </div>
   );
 };

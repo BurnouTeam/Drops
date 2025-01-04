@@ -6,6 +6,7 @@ import {
   faLocationDot,
   faClock,
   faTicket,
+  faPaperPlane,
   faCheck,
   faBan,
   faCommentDots,
@@ -20,9 +21,13 @@ interface OrderCardProps {
   customer: string;
   phone: string;
   address: string;
-  price: string;
+  price: number;
   payment: string;
   time: string;
+  kind: string;
+  onEvolve: () => void;
+  onDelete: () => void;
+  onMessage: () => void;
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({
@@ -35,6 +40,10 @@ const OrderCard: React.FC<OrderCardProps> = ({
   price,
   payment,
   time,
+  kind,
+  onEvolve,
+  onDelete,
+  onMessage,
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 flex flex-col justify-between space-y-4 mb-4">
@@ -75,7 +84,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
             </p>
             <p className="text-gray-700 flex items-center gap-x-6">
               {/* Payment Details */}
-              <span className="mr-4"><FontAwesomeIcon icon={faReceipt}/> {price}</span>
+              <span className="mr-4"><FontAwesomeIcon icon={faReceipt}/> R$ {new Intl.NumberFormat('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price)}</span>
               <span><FontAwesomeIcon icon={faDollarSign}/> {payment}</span>
             </p>
           </div>
@@ -83,17 +92,35 @@ const OrderCard: React.FC<OrderCardProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col place-content-around space-y-2 w-1/12">
-          <button className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
-            <FontAwesomeIcon className="text-black" icon={faCheck} />
-          </button>
-          <button className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
-            <FontAwesomeIcon className="text-black" icon={faBan} />
-          </button>
-          <button className="hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
-            <FontAwesomeIcon className="text-black" icon={faCommentDots} />
-          </button>
-        </div>
+        {
+          kind==="pending" &&
+
+          <div className="flex flex-col place-content-around space-y-2 w-1/12">
+            <button onClick={() => {onEvolve()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
+              <FontAwesomeIcon className="text-black" icon={faPaperPlane} />
+            </button>
+            <button onClick={() => {onDelete()}} className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
+              <FontAwesomeIcon className="text-black" icon={faBan} />
+            </button>
+            <button onClick={() => {onMessage()}} className="hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
+              <FontAwesomeIcon className="text-black" icon={faCommentDots} />
+            </button>
+          </div>
+        }
+        {
+          kind === "shipped" &&
+          <div className="flex flex-col mt-3 space-y-2 w-1/12">
+            <button onClick={() => {onEvolve()}} className="hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
+              <FontAwesomeIcon className="text-black" icon={faCheck} />
+            </button>
+            {/* <button className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2"> */}
+            {/*   <FontAwesomeIcon className="text-black" icon={faBan} /> */}
+            {/* </button> */}
+            {/* <button className="hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2"> */}
+            {/*   <FontAwesomeIcon className="text-black" icon={faCommentDots} /> */}
+            {/* </button> */}
+          </div>
+        }
       </div>
     </div>
   );

@@ -12,12 +12,25 @@ interface ColumnProps {
   title: string;
   color: string;
   kind: string;
-  orders: any[];
+  orders: Order[];
+  handleEvolution: (at: number, to: string) => void;
+  handleDelete: (at: number, from: string) => void;
+  handleMessage: (id: number) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({ title, color, orders, kind }) => {
-  const handleActionClick = (action: string) => {
-    alert(`${action} clicked`);
+const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolution, handleDelete, handleMessage }) => {
+
+  const handleEvolveAction = (id: number) => {
+    const type = kind === 'pending'? 'shipped' : 'completed';
+    handleEvolution(id, type);
+  };
+
+  const handleDeleteAction = (id: number) => {
+    handleDelete(id, kind);
+  };
+
+  const handleSendMessageAction = (id: number) => {
+    handleMessage(id);
   };
 
   const getKindIcon = (kind: string) => {
@@ -31,10 +44,9 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind }) => {
       return <FontAwesomeIcon icon={faCheck} />
     }
   }
-    // Convert the alpha value into a valid rgba background color
   return (
     <div
-      className={`p-8 rounded-3xl flex flex-col`}
+      className={`p-8 rounded-3xl flex flex-col self-stretch`}
       style={{ backgroundColor: `${color}20` }}
     >
       <div className={`flex flex-row place-content-between border-b mb-4`}>
@@ -52,8 +64,8 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind }) => {
         className={'overflow-y-auto max-h-[700px]'}
         style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
-        {orders.map((order) => (
-          <Card key={order.orderId} {...order} onActionClick={handleActionClick} />
+        {orders.map((order, index) => (
+          <Card key={order.orderId} {...order} onEvolve={() => handleEvolveAction(index)} kind={kind}  onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}/>
         ))}
       </div>
     </div>

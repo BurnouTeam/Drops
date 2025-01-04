@@ -60,7 +60,7 @@ const ClientPanel: React.FC = () => {
             onClick={handleOpenModal}
             className="bg-blue-500 text-white px-4 py-4 rounded-xl flex items-center"
           >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
+            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Cliente
           </button>
         </div>
       </div>
