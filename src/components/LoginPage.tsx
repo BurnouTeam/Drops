@@ -1,11 +1,14 @@
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { Drops } from "../assets/drops.jsx";
+import { login } from '../redux/userSlice';
+import api from "../utils/api";
 
 interface LoginFormInputs {
   email: string;
@@ -20,17 +23,23 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormInputs>();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onSubmit = (data: LoginFormInputs) => {
-    makeLoginApiRequest(data);
-    localStorage.setItem("isAuthenticated", "true");
-    navigate("/panel");
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data: LoginFormInputs) => {
+    try {
+      const response = await api.post("/auth/login", data);
+      if (response.status !== 200) {
+        throw new Error("Invalid credentials");
+      }
+      const { user, token } = response.data;
+      dispatch(login({ user, token }));
+      navigate("/");
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
-  const makeLoginApiRequest = (data: LoginFormInputs) => {
-    console.log("Login Successful", data);
-  };
 
   const handlePasswordRecovery = () => {
     console.log("Password recovery initiated.");
@@ -57,7 +66,10 @@ const LoginPage = () => {
               </label>
               <input
                 type="email"
-                {...register("email", { required: "E-mail é obrigatório" })}
+                {...register("email", { required: "E-mail é obrigatório", pattern: {
+                  value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
+                  message: "E-mail inválido"
+                } })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.email && (
@@ -76,6 +88,7 @@ const LoginPage = () => {
                   type={showPassword?"text":"password"}
                   {...register("password", {
                     required: "Senha é obrigatória",
+                    minLength: 8,
                   })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />

@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTableColumns,
@@ -10,7 +11,9 @@ import {
   faSearch,
   faBell,
   faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
+} from '@fortawesome/free-solid-svg-icons';
+import { RootState } from '../redux/store';
+import { logout } from '../redux/userSlice.js';
 import { Drops } from '../assets/drops.jsx'
 
 
@@ -21,11 +24,14 @@ interface HeaderProps {
 
 
 const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
+  const { user } = useSelector( (state: RootState) => state.user );
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onLogOff = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    navigate("/");
+    dispatch(logout());
+    localStorage.removeItem('persist:root');
+    navigate("/login");
   }
 
   return (
@@ -99,11 +105,11 @@ const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
             />
             <div className="flex items-center space-x-2">
               <img
-                src="profile.jpg"
+                src="profile-default.png"
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
-              <span className="text-secondary font-medium">Paulo César</span>
+              <span className="text-secondary font-medium">{user?.name}</span>
             </div>
             <button onClick={onLogOff}>
               <FontAwesomeIcon
