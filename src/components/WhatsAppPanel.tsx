@@ -85,7 +85,7 @@ const WhatsAppPanel: React.FC = () => {
           {chat.messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`mb-4 ${msg.sender === "John" ? "text-right" : "text-left"}`}
+              className={`mb-4 ${msg.sender === "Drops" ? "text-right mr-5" : "text-left ml-5"}`}
             >
               <div className={`inline-block px-3 py-2 rounded-lg ${msg.sender === chat.name ? "bg-green-100 right-0" : "bg-gray-100"}`}>
                 {msg.text}
