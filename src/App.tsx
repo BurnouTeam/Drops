@@ -11,10 +11,10 @@ const App: React.FC = () => {
     <div className="App">
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
         <Route path="/rec" element={<RecoveryPage/>}/>
         <Route
-          path="/panel"
+          path="/"
           element={
             <PrivateRoute>
               <PanelPage/>
