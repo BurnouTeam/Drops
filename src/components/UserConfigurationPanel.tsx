@@ -1,6 +1,11 @@
 import { useForm } from "react-hook-form";
 
-const UserConfigurationPanel = ({ user, onUpdate }) => {
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+
+const UserConfigurationPanel = () => {
+  const { user } = useSelector( (state: RootState) => state.user )
+  console.log(user)
   const {
     register,
     handleSubmit,
@@ -47,7 +52,7 @@ const UserConfigurationPanel = ({ user, onUpdate }) => {
                 className="hidden"
               />
               <img
-                src={user.profilePhoto || "profile.jpg"}
+                src={user?.profilePhoto || "profile-default.png"}
                 alt="Profile"
                 className="w-32 h-32 rounded-full border-2 border-gray-300 shadow-lg object-cover"
               />

@@ -19,7 +19,7 @@ const PanelPage = () => {
       case "mensagens":
         return <WhatsAppPanel/>
       case "configuracoes":
-        return <UserConfigurationPanel user={{}} onUpdate={()=>{}}/>
+        return <UserConfigurationPanel/>
       case "produtos":
         return <ProductPanel />
       case "clientes":
