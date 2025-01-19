@@ -1,9 +1,9 @@
-name: Deploy on EC2
+name: Deploy to EC2
 
 on:
+  workflow_dispatch:
     # push:
     #   branches: [ master ]
-    workflow_dispatch:
 
 jobs:
   deploy:
