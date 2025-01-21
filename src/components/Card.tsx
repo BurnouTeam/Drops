@@ -45,6 +45,24 @@ const OrderCard: React.FC<OrderCardProps> = ({
   onDelete,
   onMessage,
 }) => {
+
+  const sendMessage = () => {
+    const message = `Olá, seu pedido #${orderId} foi enviado!\nEstamos enviando ${quantity}x ${product} para ${address}.\n\nO valor total é de R$ ${price}.\n\nObrigado por comprar conosco!`;
+    // const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${message
+    const url = `http://localhost:3001/enviar-mensagem`
+    const splitted = phone.split(" ");
+    const correctPhone = splitted[0].slice(1,3) + splitted[1] + (splitted[2].length === 9 ? splitted[2].slice(1,9) : splitted[2]);
+
+    console.log(correctPhone);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({numero:correctPhone, mensagem:message})
+    })
+  }
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 flex flex-col justify-between space-y-4 mb-4">
       {/* Order Header */}
@@ -96,7 +114,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
           kind==="pending" &&
 
           <div className="flex flex-col place-content-around space-y-2 w-1/12">
-            <button onClick={() => {onEvolve()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
+            <button onClick={() => {onEvolve(); sendMessage()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
               <FontAwesomeIcon className="text-black" icon={faPaperPlane} />
             </button>
             <button onClick={() => {onDelete()}} className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
