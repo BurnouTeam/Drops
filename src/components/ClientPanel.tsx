@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
@@ -9,11 +9,12 @@ import {
 import Table from "./Table";
 // import ClientInsertModal from "./ClientInsertModal";
 import FilterButton from "./FilterButton";
-import clients from "../data/clients"
+import api from "../utils/api";
+import clients2 from "../data/clients"
 
 type Client = {
   name: string;
-  phone: string;
+  phoneNumber: string;
   address: string;
 };
 
@@ -25,6 +26,7 @@ const ClientPanel: React.FC = () => {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [clients, setClients] = useState<unknown>([]);
 
   const handleSort = (field: keyof Client) => {
     if (sortField === field) {
@@ -35,8 +37,25 @@ const ClientPanel: React.FC = () => {
     }
   };
 
+  const fetchClients = async () => {
+    try {
+      const response = await api.get("/client/2");
+      if ( response.status === 200 ) {
+        console.log(response.data)
+        setClients(response.data);
+      }
+
+    } catch ( error ) {
+      console.error('Failed to fetch clients:', error);
+    }
+  };
+
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+
+  useEffect( () => {
+    fetchClients();
+  }, [] )
 
   return (
     <div className="py-6 px-8">
@@ -69,7 +88,7 @@ const ClientPanel: React.FC = () => {
         headers={[
           { label: "Nome", field: "name" },
           { label: "Endereço", field: "address" },
-          { label: "Telefone", field: "phone" },
+          { label: "Telefone", field: "phoneNumber" },
         ]}
         sortField={sortField}
         sortOrder={sortOrder}

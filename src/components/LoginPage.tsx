@@ -28,7 +28,7 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data: LoginFormInputs) => {
     try {
-      const response = await api.post("/auth/login", data);
+      const response = await api.post("/auth/login", { ...data, organizationId: 2 });
       if (response.status !== 200) {
         throw new Error("Invalid credentials");
       }

@@ -26,8 +26,7 @@ const Table = <T,>({
   actions,
 }: TableProps<T>) => {
 
-  const filteredData = data
-    .filter((data) => {
+  const filteredData = data?data.filter((data) => {
       const matchesSearch = data.name.toLowerCase().includes(search.toLowerCase());
       const matchesType = filterType ? data.type === filterType : true;
       const matchesStatus = filterStatus ? data.status === filterStatus : true;
@@ -46,7 +45,7 @@ const Table = <T,>({
           : valueB.localeCompare(valueA);
       }
       return 0;
-    });
+    }):[];
 
   return (
     <table className="table-auto w-full bg-[#FAFAFA]">
