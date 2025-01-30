@@ -75,6 +75,8 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
           <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleDeleteOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
           <Column title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
           <Column title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+          <Column title="Pedidos Cancelados" color="#f1a1a8" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+
         </div>
       </div>
   );
