@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { orders as mockedOrders } from '../data/orders';
 import Column from './Column';
+import OrdersOverview from './OrdersOverview'
 
 interface DashboardProps {
   onChangeTab: Dispatch<SetStateAction<string>>
@@ -70,6 +71,8 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
   return (
       <div className="px-8">
+          <OrdersOverview title="Resumo de pedidos" color="#ffffff" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleDeleteOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+
         {/* TODO: Make it all the height available instead of the size of the cards */}
         <div className="grid grid-cols-3 grid-rows-1 grid-flow-col auto-cols-auto gap-4">
           <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleDeleteOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
