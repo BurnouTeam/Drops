@@ -13,14 +13,18 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/rec" element={<RecoveryPage/>}/>
-        <Route
+        <Route path="/" element={<PanelPage/>}/>
+       
+{/*       
+      <Route
           path="/"
           element={
             <PrivateRoute>
               <PanelPage/>
-            </PrivateRoute>
+          </PrivateRoute>
           }
         />
+        */} 
       </Routes>
     </Router>
     </div>
