@@ -53,4 +53,5 @@ export const orders: OrderContainer = {
   pending: createRandomOrders(10, products, clients),
   shipped: createRandomOrders(2, products, clients),
   completed: createRandomOrders(1, products, clients),
+  recused: createRandomOrders(1, products, clients),
 };

@@ -13,16 +13,16 @@ interface ColumnProps {
   color: string;
   kind: string;
   orders: Order[];
-  handleEvolution: (at: number, to: string) => void;
+  handleEvolution: (at: number, to: string, from: string) => void;
   handleDelete: (at: number, from: string) => void;
   handleMessage: (id: number) => void;
 }
 
 const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolution, handleDelete, handleMessage }) => {
 
-  const handleEvolveAction = (id: number) => {
+  const handleEvolveAction = (id: number, from: string) => {
     const type = kind === 'pending'? 'shipped' : 'completed';
-    handleEvolution(id, type);
+    handleEvolution(id, type, from);
   };
 
   const handleDeleteAction = (id: number) => {
@@ -65,7 +65,17 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
         style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
         {orders.map((order, index) => (
-          <Card key={order.orderId} {...order} onEvolve={() => handleEvolveAction(index)} kind={kind}  onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}/>
+          <Card
+            key={order.id}
+            orderId={order.id}
+            items={order.items}
+            customer={order.client}
+            status={order.status}
+            updatedAt={order.createdAt}
+            totalPrice={order.totalPrice}
+            onEvolve={() => handleEvolveAction(index, order.status)}
+            onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}
+            />
         ))}
       </div>
     </div>
