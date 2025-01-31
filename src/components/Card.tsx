@@ -140,6 +140,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
           <div className="flex flex-col mt-3 space-y-2 w-1/12">
             <button onClick={() => {onEvolve()}} className="hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
               <FontAwesomeIcon className="text-black" icon={faCheck} />
+              <div className="absolute bottom-full left-1/4 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                Concluir pedido
+              </div>
             </button>
             {/* <button className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2"> */}
             {/*   <FontAwesomeIcon className="text-black" icon={faBan} /> */}

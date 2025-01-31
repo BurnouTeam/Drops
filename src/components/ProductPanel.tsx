@@ -11,6 +11,7 @@ import ProductInsertModal from "./ProductInsertModal";
 import ProductEditModal from "./ProductEditModal";
 import Modal from "./Modal";
 import FilterButton from "./FilterButton";
+import ProductCard from "./ProductCard"
 
 
 const products: Product[] = [
@@ -103,6 +104,22 @@ const ProductPanel: React.FC = () => {
           </button>
         </div>
       </div>
+      <div
+        className={'overflow-y-auto max-h-[700px] grid grid-cols-5 gap-4 p-4'}
+        style={{ maxHeight: 'calc(100vh - 275px)' }}
+      >
+        {products.map((product, index) => (
+          <ProductCard key={product.value * Math.floor(Math.random())}
+            name={product.name}
+            type={product.type}
+            value={product.value}
+            quantity={product.quantity}
+            status={product.status}
+
+            
+          />
+        ))}
+        </div>
       <Table
         data={products}
         headers={[

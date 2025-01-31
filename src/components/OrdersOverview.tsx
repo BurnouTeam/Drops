@@ -65,9 +65,9 @@ const Column: React.FC<OverviewProps> = ({ title, color, orders, kind, handleEvo
         style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
         
-          <OverviewCard key={1} title={'Pedidos'} number={127} onEvolve={() => handleEvolveAction(index)} onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}/>
-          <OverviewCard key={2} title={'Novos clientes'} number={13} onEvolve={() => handleEvolveAction(index)} onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}/>
-          <OverviewCard key={3} title={'Faturamento do dia'} number={2651} onEvolve={() => handleEvolveAction(index)} onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}/>
+          <OverviewCard key={1} id={'1'} title={'Pedidos'} number={127}/>
+          <OverviewCard key={2} id={'2'} title={'Novos clientes'} number={13}/>
+          <OverviewCard key={3} id={'3'} title={'Faturamento do dia'} number={2651}/>
 
     
       </div>
