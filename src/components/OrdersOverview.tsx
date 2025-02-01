@@ -13,39 +13,12 @@ import OverviewCard from './OverviewCard'
 interface OverviewProps {
   title: string;
   color: string;
-  kind: string;
-  orders: Order[];
-  handleEvolution: (at: number, to: string) => void;
-  handleDelete: (at: number, from: string) => void;
-  handleMessage: (id: number) => void;
+  
 }
 
-const Column: React.FC<OverviewProps> = ({ title, color, orders, kind, handleEvolution, handleDelete, handleMessage }) => {
+const Column: React.FC<OverviewProps> = ({ title, color }) => {
 
-  const handleEvolveAction = (id: number) => {
-    const type = kind === 'pending'? 'shipped' : 'completed';
-    handleEvolution(id, type);
-  };
-
-  const handleDeleteAction = (id: number) => {
-    handleDelete(id, kind);
-  };
-
-  const handleSendMessageAction = (id: number) => {
-    handleMessage(id);
-  };
-
-  const getKindIcon = (kind: string) => {
-    if (kind === 'pending') {
-      return <FontAwesomeIcon icon={faHourglass} />
-    }
-    if (kind === 'shipped') {
-      return <FontAwesomeIcon icon={faPaperPlane} />
-    }
-    if (kind === 'completed') {
-      return <FontAwesomeIcon icon={faCheck} />
-    }
-  }
+ 
   return (
     <div
       className={`p-8 rounded-3xl flex flex-col self-stretch`}

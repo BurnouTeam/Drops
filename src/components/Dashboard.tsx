@@ -116,7 +116,7 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
   return (
       <div className="px-8">
-          <OrdersOverview title="Resumo de pedidos" color="#ffffff" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleDeleteOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+          <OrdersOverview title="Resumo de pedidos" color="#ffffff" />
 
         {/* TODO: Make it all the height available instead of the size of the cards */}
         <div className="grid grid-cols-3 grid-rows-1 grid-flow-col auto-cols-auto gap-4 overflow-x-scroll">
