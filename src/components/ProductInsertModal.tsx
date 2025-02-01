@@ -4,6 +4,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 interface ProductInsertModalProps {
   isOpen: boolean;
   onClose: () => void;
+  products: Product[];
 }
 
 type ProductFormInputs = {
@@ -13,7 +14,7 @@ type ProductFormInputs = {
   price: number,
 }
 
-const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose }) => {
+const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, products }) => {
 
   const [quantity, setQuantity] = useState(0);
   const {
@@ -31,6 +32,9 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose }) =>
   if (!isOpen) return null;
 
   const onSubmit: SubmitHandler<ProductFormInputs> = (data) => {
+    const newProduct = { name: data.name, type: data.type, value: data.price, quantity: data.quantity, status: products[0].status};
+    products.push(newProduct)
+    onClose()
     console.log(data);
   }
 

@@ -12,6 +12,7 @@ import ProductEditModal from "./ProductEditModal";
 import Modal from "./Modal";
 import FilterButton from "./FilterButton";
 import ProductCard from "./ProductCard"
+import NewProductCard from "./NewProductCard"
 
 
 const products: Product[] = [
@@ -47,6 +48,7 @@ const ProductPanel: React.FC = () => {
         setSelectedProduct(data)
         break;
       case "delete":
+        setSelectedProduct(data)
         setIsDeleteModalOpen(true)
         break;
       default:
@@ -76,7 +78,17 @@ const ProductPanel: React.FC = () => {
       setSortOrder("asc");
     }
   };
+  
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(search.toLowerCase()) ||
+      product.type.toLowerCase().includes(search.toLowerCase());
+    const matchesType = filterType ? product.type === filterType : true;
+    const matchesStatus =
+      filterStatus ? product.status === filterStatus : true;
 
+    return matchesSearch && matchesType && matchesStatus;
+  });
 
   return (
     <div className="py-6 px-8">
@@ -103,18 +115,23 @@ const ProductPanel: React.FC = () => {
             <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
           </button>
         </div>
+        
       </div>
       <div
-        className={'overflow-y-auto max-h-[700px] grid grid-cols-5 gap-4 p-4'}
+        className={'grid grid-cols-5 gap-4 p-4'}
         style={{ maxHeight: 'calc(100vh - 275px)' }}
+        
       >
-        {products.map((product, index) => (
+        <NewProductCard handleOpenModal={handleOpenModal} />
+        {filteredProducts.map((product, index) => (
           <ProductCard key={product.value * Math.floor(Math.random())}
             name={product.name}
             type={product.type}
             value={product.value}
             quantity={product.quantity}
             status={product.status}
+            handleOpenModal={handleOpenModal}
+            handleCloseModal={handleCloseModal}
 
             
           />
@@ -147,8 +164,8 @@ const ProductPanel: React.FC = () => {
         )}
       />
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
-      <Modal isOpen={isDeleteModalOpen} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
-      <ProductInsertModal isOpen={isNewModalOpen} onClose={() => handleCloseModal("new")} />
+      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
+      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={() => handleCloseModal("new")} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
   );
