@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
@@ -12,17 +12,8 @@ import ProductEditModal from "./ProductEditModal";
 import Modal from "./Modal";
 import FilterButton from "./FilterButton";
 import ProductCard from "./ProductCard"
-
-
-const products: Product[] = [
-  { name: "Naturágua", type: "20L", value: 13.00, quantity: 100, status: "Em Estoque" },
-  { name: "Naturágua", type: "5L", value: 5.00, quantity: 50, status: "Em Estoque" },
-  { name: "Serra Grande", type: "20L", value: 10.00, quantity: 20, status: "Em Estoque" },
-  { name: "Límpida", type: "20L", value: 9.00, quantity: 20, status: "Em Estoque" },
-  { name: "Água Azul", type: "20L", value: 9.00, quantity: 5, status: "Baixo Estoque" },
-  { name: "Pacoty", type: "20L", value: 10.00, quantity: 20, status: "Em Estoque" },
-  { name: "Indaiá", type: "20L", value: 13.00, quantity: 0, status: "Sem Estoque" },
-];
+import mockedProducts from "../data/products";
+import api from "../utils/api";
 
 const ProductPanel: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -31,10 +22,29 @@ const ProductPanel: React.FC = () => {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Omit<Product,"status"> | null>(null);
+  const [products, setProducts] = useState<Omit<Product[],"status">>([]);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+
+  const fetchProducts = async (): Promise<void> => {
+    try {
+      const response = await api.get("/product/2?include=1");
+      if ( response.status === 200 ) {
+        setProducts( prev => response.data );
+        console.log(response.data);
+      }
+
+    } catch ( error ) {
+      console.error('Failed to fetch orders:', error);
+    }
+  }
+
+  useEffect( () => {
+    fetchProducts();
+  }, [] )
 
   const handleOpenModal = (modal: string, data?: Omit<Product,"status">) => {
     switch (modal){
@@ -43,7 +53,6 @@ const ProductPanel: React.FC = () => {
         break;
       case "edit":
         setIsEditModalOpen(true)
-      console.log(data)
         setSelectedProduct(data)
         break;
       case "delete":
@@ -108,44 +117,16 @@ const ProductPanel: React.FC = () => {
         className={'overflow-y-auto max-h-[700px] grid grid-cols-5 gap-4 p-4'}
         style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
-        {products.map((product, index) => (
-          <ProductCard key={product.value * Math.floor(Math.random())}
+        {products.map((product) => (
+          <ProductCard key={product.id}
             name={product.name}
-            type={product.type}
-            value={product.value}
+            type={product.type?.name}
+            price={product.price}
             quantity={product.quantity}
-            status={product.status}
-
-            
+            status={product.quantity <= 20 && product.quantity > 0  ? "Estoque Baixo": product.quantity === 0 ? "Sem Estoque" : "Em Estoque"}
           />
         ))}
         </div>
-      <Table
-        data={products}
-        headers={[
-          { label: "Nome", field: "name" },
-          { label: "Tipo", field: "type" },
-          { label: "Valor", field: "value" },
-          { label: "Quantidade", field: "quantity" },
-          { label: "Status", field: "status" },
-        ]}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        search={search}
-        filterType={filterType}
-        filterStatus={filterStatus}
-        onSort={handleSort}
-        actions={(data) => (
-          <>
-            <button className="mr-6" onClick={() => handleOpenModal("edit", data)}>
-              <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" />
-            </button>
-            <button onClick={() => handleOpenModal("delete", data)}>
-              <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" />
-            </button>
-          </>
-        )}
-      />
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
       <Modal isOpen={isDeleteModalOpen} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
       <ProductInsertModal isOpen={isNewModalOpen} onClose={() => handleCloseModal("new")} />
@@ -155,3 +136,31 @@ const ProductPanel: React.FC = () => {
 };
 
 export default ProductPanel;
+
+
+      {/* <Table */}
+      {/*   data={products} */}
+      {/*   headers={[ */}
+      {/*     { label: "Nome", field: "name" }, */}
+      {/*     { label: "Tipo", field: "type" }, */}
+      {/*     { label: "Valor", field: "value" }, */}
+      {/*     { label: "Quantidade", field: "quantity" }, */}
+      {/*     { label: "Status", field: "status" }, */}
+      {/*   ]} */}
+      {/*   sortField={sortField} */}
+      {/*   sortOrder={sortOrder} */}
+      {/*   search={search} */}
+      {/*   filterType={filterType} */}
+      {/*   filterStatus={filterStatus} */}
+      {/*   onSort={handleSort} */}
+      {/*   actions={(data) => ( */}
+      {/*     <> */}
+      {/*       <button className="mr-6" onClick={() => handleOpenModal("edit", data)}> */}
+      {/*         <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" /> */}
+      {/*       </button> */}
+      {/*       <button onClick={() => handleOpenModal("delete", data)}> */}
+      {/*         <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" /> */}
+      {/*       </button> */}
+      {/*     </> */}
+      {/*   )} */}
+      {/* /> */}

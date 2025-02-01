@@ -4,9 +4,10 @@ declare module '*.svg' {
 }
 
 type Product = {
+  id: number;
   name: string;
-  type: string;
-  value: number;
+  type: { name: string };
+  price: number;
   quantity: number;
   status: "Em Estoque" | "Baixo Estoque" | "Sem Estoque";
 };

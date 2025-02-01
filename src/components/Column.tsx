@@ -46,7 +46,7 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
   }
   return (
     <div
-      className={`p-8 rounded-3xl flex flex-col self-stretch`}
+      className={`p-8 min-w-96 rounded-3xl flex flex-col self-stretch`}
       style={{ backgroundColor: `${color}20` }}
     >
       <div className={`flex flex-row place-content-between border-b mb-4`}>

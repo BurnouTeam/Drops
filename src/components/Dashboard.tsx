@@ -11,6 +11,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
   const [ orders, setOrders ] = useState<OrderContainer>(mockedOrders);
+  const [ products, setProducts ] = useState<Product[]>([]);
 
   const fetchOrders = async (): Promise<void> => {
     try {
@@ -24,6 +25,7 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
       console.error('Failed to fetch orders:', error);
     }
   }
+
 
   const changeOrder = async (item: Order, changeType: string): Promise<void> => {
     try {
@@ -116,14 +118,18 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
   return (
       <div className="px-8">
-          <OrdersOverview title="Resumo de pedidos" color="#ffffff" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleDeleteOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-
-        {/* TODO: Make it all the height available instead of the size of the cards */}
-        <div className="grid grid-cols-3 grid-rows-1 grid-flow-col auto-cols-auto gap-4 overflow-x-scroll">
-          <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-          <Column title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-          <Column title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-          <Column title="Pedidos Cancelados" color="#800000" orders={orders.recused} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+        <div className="flex-col">
+          <div className="mb-12">
+          <OrdersOverview  title="Resumo de pedidos"/>
+          </div>
+          <div className="overflow-x-auto m-auto">
+            <div className="flex gap-16 min-w-max">
+              <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+              <Column title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+              <Column title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+              <Column title="Pedidos Cancelados" color="#800000" orders={orders.recused} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+            </div>
+          </div>
         </div>
       </div>
   );
