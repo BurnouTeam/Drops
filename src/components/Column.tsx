@@ -71,6 +71,7 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
             items={order.items}
             customer={order.client}
             status={order.status}
+            payment={"PIX"}
             updatedAt={order.createdAt}
             totalPrice={order.totalPrice}
             onEvolve={() => handleEvolveAction(index, order.status)}

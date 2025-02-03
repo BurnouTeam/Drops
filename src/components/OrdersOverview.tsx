@@ -10,12 +10,20 @@ import api from '../utils/api.ts';
 interface OverviewProps {
   title: string;
   orders: Order[];
+  ordersData: any
 }
 
 const Overview: React.FC<OverviewProps> = ({ title }) => {
 
   const [isOpen, setIsOpen] = useState(true);
-  const [ products, setProducts ] = useState<Product[]>([]);
+  const [timeFilter, setTimeFilter] = useState("day");
+  const [ products, setProducts ] = useState<Product[]>(mockedProducts);
+
+  const [ overviewData, setOverviewData ] = useState<any>({
+    ordersCount: 0,
+    clientsCount: 0,
+    moneyMade: 0,
+  });
 
   const fetchProducts = async (): Promise<void> => {
     try {
@@ -30,9 +38,40 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
     }
   }
 
+  const fetchOverview = async (time: string = "day"): Promise<void> => {
+    try {
+      const response = await api.get(`/order/overview/${time}/2`);
+      const responseClients = await api.get(`/client/overview/${time}/2`);
+      let ordersCount: number = 0;
+      let clientsCount: number = 0;
+      let moneyMade: number = 0;
+
+      if ( responseClients.status === 200 ) {
+          clientsCount = responseClients.data.clientsCount
+      }
+      if ( response.status === 200 ) {
+        ordersCount = response.data.ordersCount;
+        moneyMade = response.data.completedSum
+      }
+
+      setOverviewData({
+        ordersCount,
+        clientsCount,
+        moneyMade
+      });
+
+    } catch ( error ) {
+      console.error('Failed to fetch orders:', error);
+    }
+  }
+
   useEffect( () => {
     fetchProducts();
   }, [] )
+
+  useEffect( () => {
+    fetchOverview();
+  }, [timeFilter] )
 
   return (
     <div
@@ -54,27 +93,29 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
       </div>
 
       {isOpen && (
-        <div className="flex justify-around px-8">
+        <div className="flex px-8">
           <div className="w-1/2 rounded-lg">
-            <div className={`flex flex-row justify-stretch  mb-4`}>
+            <div className={`flex flex-row mb-4`}>
               <h2 className={`text-xl font-bold mb-2 text-black`}>{<FontAwesomeIcon icon={faChartBar} />} {title}</h2>
-              <button className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
+              <button onClick={() => setTimeFilter("day")} className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
                   Diário
               </button>
-              <button className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
+              <button onClick={() => setTimeFilter("month")} className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
                   Mensal
               </button>
             </div>
             <div
-              className={'overflow-y-auto flex space-x-4 justify-start'}
+              className={'overflow-y-auto flex py-4 mr-12 justify-between'}
               // style={{ height: 'calc(100vh - 875px)' }}
             >
-                <OverviewCard key={1} id={'1'} title={'Pedidos do Dia'} number={127}/>
-                <OverviewCard key={2} id={'2'} title={'Novos Clientes'} number={13}/>
-                <OverviewCard key={3} id={'3'} title={'Faturamento do Dia'} number={2651}/>
+                <OverviewCard key={1} id={'1'} title={`Pedidos do ${timeFilter === "day"? "Dia": "Mês"}`} number={overviewData.ordersCount}/>
+                <OverviewCard key={2} id={'2'} title={'Novos Clientes'} number={overviewData.clientsCount}/>
+                <OverviewCard key={3} id={'3'} title={`Faturamento do ${timeFilter === "day"? "Dia": "Mês"}`} number={overviewData.moneyMade.toFixed(2)}/>
             </div>
           </div>
-          <ProgressBarCard data={products}/>
+          <div className='w-1/2'>
+            <ProgressBarCard data={products} orderBy="asc"/>
+          </div>
         </div>
       )}
     </div>

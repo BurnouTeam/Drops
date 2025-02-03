@@ -25,21 +25,39 @@ function createRandomOrders(
     const randomTime = `${String(Math.floor(Math.random() * 24)).padStart(2, "0")}:${String(
       Math.floor(Math.random() * 60)
     ).padStart(2, "0")}`;
-    const orderId = `${Math.floor(10000 + Math.random() * 90000)}`;
+    const orderId = Math.floor(10000 + Math.random() * 90000);
 
     const quantity = 1 + Math.floor(Math.random() * 10);
 
+    console.log(product)
     // Create the order
     orders.push({
-      orderId,
-      quantity: quantity,
-      product: `${product.name} ${product.type}`,
-      customer: client.name,
-      phone: client.phone,
-      address: client.address,
-      price: product.value * quantity,
+      id: Math.floor(9000 * Math.random()),
+      items: [
+        {
+          id: 1,
+          orderId,
+          quantity: product.quantity,
+          product: {
+            id: 1,
+            name: product.name,
+            price: product.value,
+            quantity: product.quantity,
+            details:"test",
+            type:product.type
+          }
+        },
+      ],
+      client: {
+        name: client.name,
+        phoneNumber: client.phone,
+        street: client.address,
+        number: client.address,
+      },
+      type: { name: "L" },
+      totalPrice: product.value * quantity,
       payment: randomPayment,
-      time: randomTime,
+      createdAt: randomTime,
     });
 
     // Decrement stock

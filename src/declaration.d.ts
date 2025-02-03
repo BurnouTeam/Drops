@@ -37,7 +37,7 @@ type Item = {
 type Order = {
   client: Client;
   createdAt: string;
-  id: string;
+  id: number;
   organizationId: number;
   items: OrderItem[];
   clientId: string;

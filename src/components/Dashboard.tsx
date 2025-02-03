@@ -11,7 +11,6 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
   const [ orders, setOrders ] = useState<OrderContainer>(mockedOrders);
-  const [ products, setProducts ] = useState<Product[]>([]);
 
   const fetchOrders = async (): Promise<void> => {
     try {
@@ -28,6 +27,7 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
 
   const changeOrder = async (item: Order, changeType: string): Promise<void> => {
+    console.log(item);
     try {
       const response = await api.patch(`/order/${changeType}/${item.id}`, {
         organizationId: item.organizationId,
@@ -60,9 +60,11 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
       switch (to) {
         case 'shipped':
           order = updatedOrders.pending.splice(at, 1);
+          order[0].status = 'shipped';
           break;
         case 'completed':
           order = updatedOrders.shipped.splice(at, 1);
+          order[0].status = 'completed';
           break;
         default:
           break;
@@ -104,6 +106,7 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
           break;
       }
 
+      order[0].status = 'recused';
       updatedOrders.recused.push(order[0]);
 
       return updatedOrders;

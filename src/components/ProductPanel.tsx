@@ -22,7 +22,7 @@ const ProductPanel: React.FC = () => {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Omit<Product,"status"> | null>(null);
-  const [products, setProducts] = useState<Omit<Product[],"status">>([]);
+  const [products, setProducts] = useState<Omit<Product[],"status">>(mockedProducts);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
