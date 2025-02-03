@@ -25,9 +25,9 @@ const ProductCard: React.FC<ProductCard> = ({
   status
 }) => {
   const data = { name: name, type: type, value: value, quantity: quantity, status: status};
-
+  const borderColor = (status === "Em Estoque") ? "border-green-200" : (status === "Estoque Baixo") ? "border-orange-200":"border-red-500";
   return (
-    <div className="aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2 border-indigo-200 flex flex-col justify-between space-y-4 mb-4">
+    <div className={` aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2 ${borderColor} flex flex-col justify-between space-y-4 mb-4`}>
   
   {/* Product and Quantity */}
   <div className="flex flex-col space-y-2">
