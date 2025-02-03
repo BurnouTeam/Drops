@@ -36,9 +36,11 @@ const ProductCard: React.FC<ProductCard> = ({
 
       {/* Icons */}
       <div className="flex items-center space-x-2 mt-4">
-        <span className="text-gray-500 text-sm flex items-center space-x-1">
-            <FontAwesomeIcon icon={faEdit} className="text-secondary hover:text-primary"/>
-        </span>
+        <button onClick={() => handleOpenModal("edit", data)}>
+          <span className="text-gray-500 text-sm flex items-center space-x-1">
+              <FontAwesomeIcon icon={faEdit} className="text-secondary hover:text-primary"/>
+          </span>
+        </button>       
         <button onClick={() => handleOpenModal("delete", data)}>
           <span className="text-gray-500 text-sm flex items-center space-x-1">
               <FontAwesomeIcon icon={faTrash}  className="text-secondary hover:text-red-500"/>
