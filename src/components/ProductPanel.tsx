@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPen,
   faPlus,
   faSearch,
-  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import Table from "./Table";
 import ProductInsertModal from "./ProductInsertModal";
 import ProductEditModal from "./ProductEditModal";
 import Modal from "./Modal";
@@ -22,8 +19,8 @@ const ProductPanel: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Omit<Product,"status"> | null>(null);
-  const [products, setProducts] = useState<Omit<Product[],"status">>(mockedProducts);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>(mockedProducts);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,13 +44,14 @@ const ProductPanel: React.FC = () => {
     fetchProducts();
   }, [] )
 
-  const handleOpenModal = (modal: string, data?: Omit<Product,"status">) => {
+  const handleOpenModal = (modal: string, data?: Product) => {
     switch (modal){
       case "new":
         setIsNewModalOpen(true)
         break;
       case "edit":
         setIsEditModalOpen(true)
+      console.log(data);
         setSelectedProduct(data)
         break;
       case "delete":
@@ -77,6 +75,13 @@ const ProductPanel: React.FC = () => {
         break;
     }
   };
+
+  const handleCreateProduct = (product: Product | null) => {
+    if ( product ){
+      setProducts( (prev) => [...prev, product] );
+    }
+    handleCloseModal("new");
+  }
 
 
   const handleSort = (field: keyof Product) => {
@@ -133,7 +138,8 @@ const ProductPanel: React.FC = () => {
       >
         <NewProductCard handleOpenModal={handleOpenModal} />
         {filteredProducts.map((product, index) => (
-          <ProductCard key={product.price * Math.floor(Math.random())}
+          <ProductCard key={product.id}
+            id={product.id}
             name={product.name}
             type={product.type?.name}
             price={product.price}
@@ -148,38 +154,10 @@ const ProductPanel: React.FC = () => {
         </div>
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
       <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
-      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={() => handleCloseModal("new")} />
+      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={handleCreateProduct} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
   );
 };
 
 export default ProductPanel;
-
-
-      {/* <Table */}
-      {/*   data={products} */}
-      {/*   headers={[ */}
-      {/*     { label: "Nome", field: "name" }, */}
-      {/*     { label: "Tipo", field: "type" }, */}
-      {/*     { label: "Valor", field: "value" }, */}
-      {/*     { label: "Quantidade", field: "quantity" }, */}
-      {/*     { label: "Status", field: "status" }, */}
-      {/*   ]} */}
-      {/*   sortField={sortField} */}
-      {/*   sortOrder={sortOrder} */}
-      {/*   search={search} */}
-      {/*   filterType={filterType} */}
-      {/*   filterStatus={filterStatus} */}
-      {/*   onSort={handleSort} */}
-      {/*   actions={(data) => ( */}
-      {/*     <> */}
-      {/*       <button className="mr-6" onClick={() => handleOpenModal("edit", data)}> */}
-      {/*         <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" /> */}
-      {/*       </button> */}
-      {/*       <button onClick={() => handleOpenModal("delete", data)}> */}
-      {/*         <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" /> */}
-      {/*       </button> */}
-      {/*     </> */}
-      {/*   )} */}
-      {/* /> */}

@@ -7,25 +7,29 @@ import {
 
 interface ProductCardProps {
 
+    id: number;
     name: string;
     type: string;
     price: number;
     quantity: number;
     status: string;
-    handleOpenModal: (modal: string, data?: Omit<Product, "status">) => void;
-    handleCloseModal: (modal: string, data?: Omit<Product, "status">) => void;
+    handleOpenModal: (modal: string, data?: Product) => void;
+    handleCloseModal: (modal: string, data?: Product) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+  id,
   name,
   type,
   price,
   quantity,
-  status
+  status,
+  handleOpenModal,
+  handleCloseModal
 }) => {
 
   const bgColor = (status === "Em Estoque") ? "bg-green-200" : (status === "Estoque Baixo") ? "bg-orange-200":"bg-red-300";
-  const data = { name: name, type: type, price: price, quantity: quantity, status: status};
+  const data = { name: name, type: type, price: price, quantity: quantity, status: status, id: id};
 
   return (
     <div className={`aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2  flex flex-col justify-between space-y-4 mb-4`}>

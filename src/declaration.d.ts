@@ -6,10 +6,16 @@ declare module '*.svg' {
 type Product = {
   id: number;
   name: string;
-  type: { name: string };
+  type: Omit<ProductType, 'organizationId | id'>
   price: number;
   quantity: number;
   status: "Em Estoque" | "Baixo Estoque" | "Sem Estoque";
+};
+
+type ProductType = {
+  id: number;
+  name: string;
+  organizationId: number;
 };
 
 type OrderContainer = {

@@ -1,24 +1,28 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
+import api from '../utils/api';
 
 interface ProductInsertModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (product: Product | null) => void;
   products: Product[];
 }
 
 type ProductFormInputs = {
   name: string,
-  quantity: number,
-  type: string,
   price: number,
+  quantity: number,
+  organizationId: number,
+  typeId: number
 }
 
 const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, products }) => {
 
+  const [ types, setTypes ] = useState<ProductType[]>([]);
   const [quantity, setQuantity] = useState(0);
   const {
     register,
+    reset,
     setValue,
     getValues,
     handleSubmit,
@@ -26,17 +30,62 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
   } = useForm<ProductFormInputs>({
     defaultValues: {
       quantity: 0,
+      typeId: 1,
+      price: 10,
     }
   });
 
+  const fetchTypes = async (): Promise<void> => {
+    try {
+      const response = await api.get("/product/types/2");
+      if ( response.status === 200 ) {
+        setTypes(response.data.sort());
+      }
+    } catch ( error ) {
+      console.error('Failed to fetch orders:', error);
+    }
+  }
+
+  const createProduct = async (data: ProductFormInputs): Promise<Product> => {
+    try {
+      data.organizationId = 2;
+      const response = await api.post<Product>(`/product`, {
+        ...data
+      });
+
+      if (response.status !== 201) {
+        throw new Error("Produto não foi criado com sucesso.")
+      }
+      return response.data;
+
+    } catch (error) {
+      console.error("Erro ao criar o produto:", error);
+      throw new Error("Produto não foi criado com sucesso.")
+    }
+  }
+
+  useEffect(() => {
+    reset({
+      quantity: 0,
+      typeId: 1,
+      price: 10,
+    });
+  }, [reset]);
+
+  useEffect(() => {
+    fetchTypes();
+  }, []);
+
   if (!isOpen) return null;
 
-  const onSubmit: SubmitHandler<ProductFormInputs> = (data) => {
-    const newProduct = { name: data.name, type: data.type, value: data.price, quantity: data.quantity, status: products[0].status};
-    products.push(newProduct)
-    onClose()
-    console.log(data);
+  const onSubmit: SubmitHandler<ProductFormInputs> = async (data) => {
+    const product: Product = await createProduct(data);
+    if (product){
+      console.log(product)
+      onClose(product)
+    }
   }
+
 
   const handleChangeValue = (increment: number) => {
     const result = getValues("quantity") + increment;
@@ -54,7 +103,7 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
           <h2 className="text-lg font-semibold">Novo Produto</h2>
           <button
             className="text-gray-500 hover:text-gray-700"
-            onClick={onClose}
+            onClick={() => onClose(null)}
             aria-label="Close modal"
           >
             &times;
@@ -82,9 +131,9 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
                   -
                 </button>
                 <input
-                  type="text"
+                  type="number"
                   className="w-12 text-center bg-gray-200 border  rounded-md"
-                  {...register("quantity")}
+                  {...register("quantity", { valueAsNumber: true })}
                 />
                 <button
                   type="button"
@@ -107,13 +156,14 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
                   Tipo
                 </label>
                 <select
-                  id="type"
+                  id="typeId"
                   className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  {...register("type")}
+                  {...register("typeId", { valueAsNumber: true })}
                 >
-                  <option>Selecione</option>
-                  <option>Tipo 1</option>
-                  <option>Tipo 2</option>
+                  <option disabled>Selecione</option>
+                  {types?.map((type: ProductType, index: number) => (
+                      <option key={index} value={type.id}>{type.name}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -125,10 +175,10 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
                 </label>
                 <input
                   id="value"
-                  type="text"
+                  type="number"
                   placeholder="R$ 0,00"
                   className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  {...register("price")}
+                  {...register("price", { valueAsNumber: true })}
                 />
               </div>
             </div>
@@ -138,7 +188,7 @@ const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, prod
             <button
               type="button"
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-              onClick={onClose}
+              onClick={() => onClose(null)}
             >
               Cancelar
             </button>
