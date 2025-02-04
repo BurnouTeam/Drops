@@ -12,6 +12,8 @@ interface ProductCardProps {
     price: number;
     quantity: number;
     status: string;
+    handleOpenModal: (modal: string, data?: Omit<Product, "status">) => void;
+    handleCloseModal: (modal: string, data?: Omit<Product, "status">) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -23,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
 
   const borderColor = (status === "Em Estoque") ? "border-green-200" : (status === "Estoque Baixo") ? "border-orange-200":"border-red-500";
+  const data = { name: name, type: type, price: price, quantity: quantity, status: status};
 
   return (
     <div className={`aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2 ${borderColor} flex flex-col justify-between space-y-4 mb-4`}>
@@ -34,12 +37,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Icons */}
       <div className="flex items-center space-x-2 mt-4">
-        <span className="text-gray-500 text-sm flex items-center space-x-1">
-            <FontAwesomeIcon icon={faEdit} />
-        </span>
-        <span className="text-gray-500 text-sm flex items-center space-x-1">
-            <FontAwesomeIcon icon={faTrash} />
-        </span>
+        <button onClick={() => handleOpenModal("edit", data)}>
+          <span className="text-gray-500 text-sm flex items-center space-x-1">
+              <FontAwesomeIcon icon={faEdit} className="text-secondary hover:text-primary"/>
+          </span>
+        </button>
+        <button onClick={() => handleOpenModal("delete", data)}>
+          <span className="text-gray-500 text-sm flex items-center space-x-1">
+              <FontAwesomeIcon icon={faTrash}  className="text-secondary hover:text-red-500"/>
+          </span>
+        </button>
       </div>
     </div>
 

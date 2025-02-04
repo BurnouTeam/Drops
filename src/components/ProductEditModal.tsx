@@ -46,9 +46,27 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
 
   if (!isOpen) return null;
 
-  const onSubmit: SubmitHandler<ProductFormInputs> = (data) => {
-    // TODO: Make api call for editing
-    console.log(data);
+  const onSubmit: SubmitHandler<ProductFormInputs> = async (data) => {
+    try {
+      const response = await fetch(`/api/products/${updatedProduct.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedProduct),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar o produto");
+      }
+  
+      const result = await response.json();
+      console.log("Produto atualizado com sucesso:", result);
+      
+      // Aqui você pode adicionar lógica para atualizar o estado global ou refetch dos produtos
+    } catch (error) {
+      console.error("Erro ao atualizar o produto:", error);
+    }
   }
 
   const handleChangeValue = (increment: number) => {

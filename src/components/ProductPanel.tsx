@@ -14,6 +14,7 @@ import FilterButton from "./FilterButton";
 import ProductCard from "./ProductCard"
 import mockedProducts from "../data/products";
 import api from "../utils/api";
+import NewProductCard from "./NewProductCard";
 
 const ProductPanel: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -56,6 +57,7 @@ const ProductPanel: React.FC = () => {
         setSelectedProduct(data)
         break;
       case "delete":
+        setSelectedProduct(data)
         setIsDeleteModalOpen(true)
         break;
       default:
@@ -86,6 +88,16 @@ const ProductPanel: React.FC = () => {
     }
   };
 
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(search.toLowerCase()) ||
+      product.type.name.toLowerCase().includes(search.toLowerCase());
+    const matchesType = filterType ? product.type.name === filterType : true;
+    const matchesStatus =
+      filterStatus ? product.status === filterStatus : true;
+
+    return matchesSearch && matchesType && matchesStatus;
+  });
 
   return (
     <div className="py-6 px-8">
@@ -112,24 +124,31 @@ const ProductPanel: React.FC = () => {
             <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
           </button>
         </div>
+
       </div>
       <div
-        className={'overflow-y-auto max-h-[700px] grid grid-cols-5 gap-4 p-4'}
+        className={'grid grid-cols-5 gap-4 p-4'}
         style={{ maxHeight: 'calc(100vh - 275px)' }}
+
       >
-        {products.map((product) => (
-          <ProductCard key={product.id}
+        <NewProductCard handleOpenModal={handleOpenModal} />
+        {filteredProducts.map((product, index) => (
+          <ProductCard key={product.price * Math.floor(Math.random())}
             name={product.name}
             type={product.type?.name}
             price={product.price}
             quantity={product.quantity}
             status={product.quantity <= 20 && product.quantity > 0  ? "Estoque Baixo": product.quantity === 0 ? "Sem Estoque" : "Em Estoque"}
+            handleOpenModal={handleOpenModal}
+            handleCloseModal={handleCloseModal}
+
+
           />
         ))}
         </div>
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
-      <Modal isOpen={isDeleteModalOpen} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
-      <ProductInsertModal isOpen={isNewModalOpen} onClose={() => handleCloseModal("new")} />
+      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
+      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={() => handleCloseModal("new")} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
   );
