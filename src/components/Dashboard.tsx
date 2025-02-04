@@ -19,7 +19,6 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
         console.log(response.data)
         setOrders(response.data);
       }
-
     } catch ( error ) {
       console.error('Failed to fetch orders:', error);
     }
