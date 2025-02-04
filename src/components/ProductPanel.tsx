@@ -83,6 +83,19 @@ const ProductPanel: React.FC = () => {
     handleCloseModal("new");
   }
 
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      const response = await api.delete(`/product/2/${product.id}`);
+      if ( response.status === 200 ) {
+        const remainingProducts = products.filter( (prod) => { return (product.id !== prod.id) } )
+        setProducts(remainingProducts);
+      }
+    } catch ( error ) {
+      console.error('Failed to delete product:', error);
+    }
+    handleCloseModal("delete");
+  }
+
 
   const handleSort = (field: keyof Product) => {
     if (sortField === field) {
@@ -106,7 +119,7 @@ const ProductPanel: React.FC = () => {
 
   return (
     <div className="py-6 px-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center mb-6 gap-x-4">
         <div className="relative w-1/4">
           <input
             type="text"
@@ -122,12 +135,6 @@ const ProductPanel: React.FC = () => {
             setFilterType(type);
             setFilterStatus(status);
           }} />
-          <button
-            onClick={() => handleOpenModal("new")}
-            className="bg-blue-500 text-white px-4 py-4 rounded-xl flex items-center"
-          >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
-          </button>
         </div>
 
       </div>
@@ -153,7 +160,7 @@ const ProductPanel: React.FC = () => {
         ))}
         </div>
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
-      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
+      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleDeleteProduct(selectedProduct)} onConfirm={() => {}}/>
       <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={handleCreateProduct} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
