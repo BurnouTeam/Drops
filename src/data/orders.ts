@@ -29,7 +29,6 @@ function createRandomOrders(
 
     const quantity = 1 + Math.floor(Math.random() * 10);
 
-    console.log(product)
     // Create the order
     orders.push({
       id: Math.floor(9000 * Math.random()),

@@ -47,7 +47,7 @@ const ClientInsertModal: FC<ClientInsertModalProps> = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         {/* Modal Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Novo Produto</h2>
+          <h2 className="text-lg font-semibold">Novo Cliente</h2>
           <button
             className="text-gray-500 hover:text-gray-700"
             onClick={onClose}

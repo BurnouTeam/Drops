@@ -24,11 +24,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   status
 }) => {
 
-  const borderColor = (status === "Em Estoque") ? "border-green-200" : (status === "Estoque Baixo") ? "border-orange-200":"border-red-500";
+  const bgColor = (status === "Em Estoque") ? "bg-green-200" : (status === "Estoque Baixo") ? "bg-orange-200":"bg-red-300";
   const data = { name: name, type: type, price: price, quantity: quantity, status: status};
 
   return (
-    <div className={`aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2 ${borderColor} flex flex-col justify-between space-y-4 mb-4`}>
+    <div className={`aspect-w-1 aspect-h-1 bg-white rounded-2xl shadow-md p-4 py-1 border-2  flex flex-col justify-between space-y-4 mb-4`}>
 
   {/* Product and Quantity */}
   <div className="flex flex-col space-y-2">
@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     </div>
     <div className="flex items-center space-x-2 mt-4 justify-between">
       <h2 className="text-lg">{quantity} und.</h2>
-      <h2>{status}</h2>
+      <h2 className={`border-2 rounded-xl p-2 ${bgColor}`}>{status}</h2>
     </div>
   </div>
 

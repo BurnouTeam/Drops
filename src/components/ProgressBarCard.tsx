@@ -36,7 +36,7 @@ const ProgressBarCard: React.FC<ProgressBarCardProps> = ({ data = [] , orderBy="
 
             return (
             <div key={index} className="flex justify-end items-center">
-              <span className={`mr-2 ${font} text-lg`}>{item.name} {item.type.name}</span>
+              <span className={`mr-2 ${font} text-lg`}>{item.name} {item.type?.name}</span>
               <div className="w-[60%] bg-gray-200 rounded-full h-4">
                 <div
                   className="h-4 rounded-full"
