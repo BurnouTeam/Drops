@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPen,
   faPlus,
   faSearch,
-  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import Table from "./Table";
 import ProductInsertModal from "./ProductInsertModal";
 import ProductEditModal from "./ProductEditModal";
 import Modal from "./Modal";
@@ -22,8 +19,8 @@ const ProductPanel: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Omit<Product,"status"> | null>(null);
-  const [products, setProducts] = useState<Omit<Product[],"status">>(mockedProducts);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>(mockedProducts);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,13 +44,14 @@ const ProductPanel: React.FC = () => {
     fetchProducts();
   }, [] )
 
-  const handleOpenModal = (modal: string, data?: Omit<Product,"status">) => {
+  const handleOpenModal = (modal: string, data?: Product) => {
     switch (modal){
       case "new":
         setIsNewModalOpen(true)
         break;
       case "edit":
         setIsEditModalOpen(true)
+      console.log(data);
         setSelectedProduct(data)
         break;
       case "delete":
@@ -78,6 +76,26 @@ const ProductPanel: React.FC = () => {
     }
   };
 
+  const handleCreateProduct = (product: Product | null) => {
+    if ( product ){
+      setProducts( (prev) => [...prev, product] );
+    }
+    handleCloseModal("new");
+  }
+
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      const response = await api.delete(`/product/2/${product.id}`);
+      if ( response.status === 200 ) {
+        const remainingProducts = products.filter( (prod) => { return (product.id !== prod.id) } )
+        setProducts(remainingProducts);
+      }
+    } catch ( error ) {
+      console.error('Failed to delete product:', error);
+    }
+    handleCloseModal("delete");
+  }
+
 
   const handleSort = (field: keyof Product) => {
     if (sortField === field) {
@@ -101,7 +119,7 @@ const ProductPanel: React.FC = () => {
 
   return (
     <div className="py-6 px-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center mb-6 gap-x-4">
         <div className="relative w-1/4">
           <input
             type="text"
@@ -117,12 +135,6 @@ const ProductPanel: React.FC = () => {
             setFilterType(type);
             setFilterStatus(status);
           }} />
-          <button
-            onClick={() => handleOpenModal("new")}
-            className="bg-blue-500 text-white px-4 py-4 rounded-xl flex items-center"
-          >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Novo Produto
-          </button>
         </div>
 
       </div>
@@ -133,7 +145,8 @@ const ProductPanel: React.FC = () => {
       >
         <NewProductCard handleOpenModal={handleOpenModal} />
         {filteredProducts.map((product, index) => (
-          <ProductCard key={product.price * Math.floor(Math.random())}
+          <ProductCard key={product.id}
+            id={product.id}
             name={product.name}
             type={product.type?.name}
             price={product.price}
@@ -147,39 +160,11 @@ const ProductPanel: React.FC = () => {
         ))}
         </div>
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
-      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
-      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={() => handleCloseModal("new")} />
+      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => handleDeleteProduct(selectedProduct)}/>
+      <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={handleCreateProduct} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>
   );
 };
 
 export default ProductPanel;
-
-
-      {/* <Table */}
-      {/*   data={products} */}
-      {/*   headers={[ */}
-      {/*     { label: "Nome", field: "name" }, */}
-      {/*     { label: "Tipo", field: "type" }, */}
-      {/*     { label: "Valor", field: "value" }, */}
-      {/*     { label: "Quantidade", field: "quantity" }, */}
-      {/*     { label: "Status", field: "status" }, */}
-      {/*   ]} */}
-      {/*   sortField={sortField} */}
-      {/*   sortOrder={sortOrder} */}
-      {/*   search={search} */}
-      {/*   filterType={filterType} */}
-      {/*   filterStatus={filterStatus} */}
-      {/*   onSort={handleSort} */}
-      {/*   actions={(data) => ( */}
-      {/*     <> */}
-      {/*       <button className="mr-6" onClick={() => handleOpenModal("edit", data)}> */}
-      {/*         <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" /> */}
-      {/*       </button> */}
-      {/*       <button onClick={() => handleOpenModal("delete", data)}> */}
-      {/*         <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" /> */}
-      {/*       </button> */}
-      {/*     </> */}
-      {/*   )} */}
-      {/* /> */}

@@ -122,10 +122,10 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
       <div className="px-8">
         <div className="flex-col">
           <div className="mb-12">
-          <OrdersOverview  title="Resumo de pedidos"/>
+          <OrdersOverview  title="Resumo"/>
           </div>
-          <div className="overflow-x-auto m-auto">
-            <div className="flex gap-16 min-w-max">
+          <div className="overflow-x-auto">
+            <div className="flex justify-between min-w-max min-h-96">
               <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
               <Column title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
               <Column title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>

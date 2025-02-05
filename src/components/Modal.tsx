@@ -10,7 +10,6 @@ interface ModalProps {
   data?: string;
   confirmText?: string;
   cancelText?: string;
-  products: Product[]
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -22,16 +21,9 @@ const Modal: React.FC<ModalProps> = ({
   data,
   confirmText = "Confirmar",
   cancelText = "Cancelar",
-  products
 }) => {
   if (!isOpen) return null;
-  const remove = (name: any) => {
-    const index = products.findIndex(product => product.name === name);
-  if (index !== -1) {
-    products.splice(index, 1); // Remove o produto com o id fornecido
-    onClose()
-  }
-  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-96 p-6">
@@ -51,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({
             {cancelText}
           </button>
           <button
-            onClick={() => remove(data)}
+            onClick={onConfirm}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             {confirmText}

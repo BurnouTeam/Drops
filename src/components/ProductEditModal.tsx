@@ -1,21 +1,24 @@
 import { FC, useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
+import api from '../utils/api';
 
 interface ProductEditModalProps {
   isOpen: boolean;
-  data: Omit<Product,'status'> | null;
+  data: Product | null;
   onClose: () => void;
 }
 
 type ProductFormInputs = {
   name: string,
-  quantity: number,
-  type: string,
   price: number,
+  quantity: number,
+  typeId: number,
+  organizationId: number,
 }
 
 const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) => {
 
+  const [ types, setTypes ] = useState<ProductType[]>([]);
   const {
     register,
     reset,
@@ -27,8 +30,8 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
     defaultValues: {
       quantity: data?.quantity ?? 0,
       name: data?.name ?? "",
-      type: data?.type ?? "",
-      price: data?.value ?? 0
+      typeId: data?.type.id ?? 0,
+      price: data?.price ?? 0
     }
   });
 
@@ -38,31 +41,44 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
       reset({
         quantity: data.quantity,
         name: data.name,
-        type: data.type,
-        price: data.value,
+        typeId: data.type.id,
+        price: data.price,
       });
     }
   }, [data, reset]);
 
+  const fetchTypes = async (): Promise<void> => {
+    try {
+      const response = await api.get("/product/types/2");
+      if ( response.status === 200 ) {
+        setTypes(response.data.sort());
+      }
+    } catch ( error ) {
+      console.error('Failed to fetch orders:', error);
+    }
+  }
+  useEffect(() => {
+    fetchTypes();
+  }, []);
+
   if (!isOpen) return null;
 
-  const onSubmit: SubmitHandler<ProductFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<ProductFormInputs> = async (body) => {
     try {
-      const response = await fetch(`/api/products/${updatedProduct.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedProduct),
+      body.organizationId = 2;
+      const response = await api.patch(`/product/${data?.id}`, {
+        ...body
       });
-  
-      if (!response.ok) {
+
+      if (response.status === 200) {
+        const result = await response.data
+        console.log("Produto atualizado com sucesso:", result);
+      } else {
         throw new Error("Erro ao atualizar o produto");
       }
-  
-      const result = await response.json();
-      console.log("Produto atualizado com sucesso:", result);
-      
+      onClose();
+
+
       // Aqui você pode adicionar lógica para atualizar o estado global ou refetch dos produtos
     } catch (error) {
       console.error("Erro ao atualizar o produto:", error);
@@ -114,7 +130,7 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
                 <input
                   type="text"
                   className="w-12 text-center bg-gray-200 border  rounded-md"
-                  {...register("quantity")}
+                  {...register("quantity", { valueAsNumber: true })}
                 />
                 <button
                   type="button"
@@ -137,13 +153,14 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
                   Tipo
                 </label>
                 <select
-                  id="type"
+                  id="typeId"
                   className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  {...register("type")}
+                  {...register("typeId", { valueAsNumber: true })}
                 >
-                  <option>Selecione</option>
-                  <option>Tipo 1</option>
-                  <option>Tipo 2</option>
+                  <option disabled>Selecione</option>
+                  {types?.map((type: ProductType, index: number) => (
+                      <option key={index} value={type.id}>{type.name}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -158,7 +175,7 @@ const ProductEditModal: FC<ProductEditModalProps> = ({ isOpen, onClose, data }) 
                   type="text"
                   placeholder="R$ 0,00"
                   className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  {...register("price")}
+                  {...register("price", { valueAsNumber: true })}
                 />
               </div>
             </div>

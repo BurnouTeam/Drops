@@ -9,8 +9,6 @@ import api from '../utils/api.ts';
 
 interface OverviewProps {
   title: string;
-  orders: Order[];
-  ordersData: any
 }
 
 const Overview: React.FC<OverviewProps> = ({ title }) => {
@@ -97,10 +95,10 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
           <div className="w-1/2 rounded-lg">
             <div className={`flex flex-row mb-4`}>
               <h2 className={`text-xl font-bold mb-2 text-black`}>{<FontAwesomeIcon icon={faChartBar} />} {title}</h2>
-              <button onClick={() => setTimeFilter("day")} className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
+              <button onClick={() => setTimeFilter("day")} className={`px-4 py-0 ml-4 rounded-full border-2 ${timeFilter === "day"? "border-indigo-500": "border-indigo-200"} text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300`}>
                   Diário
               </button>
-              <button onClick={() => setTimeFilter("month")} className="px-4 py-0 ml-4 rounded-full border-2 border-indigo-200 text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300">
+              <button onClick={() => setTimeFilter("month")} className={`px-4 py-0 ml-4 rounded-full border-2 ${timeFilter === "month"? "border-indigo-500": "border-indigo-200"} text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300`}>
                   Mensal
               </button>
             </div>
