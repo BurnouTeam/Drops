@@ -14,11 +14,6 @@ import clients2 from "../data/clients"
 import Modal from "./Modal";
 import ClientEditModal from "./ClienEditModal";
 
-type Client = {
-  name: string;
-  phoneNumber: string;
-  address: string;
-};
 
 
 const ClientPanel: React.FC = () => {
@@ -27,10 +22,10 @@ const ClientPanel: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [clients, setClients] = useState<unknown>([]);
+  const [clients, setClients] = useState<Client[]>([]);
 
 
-  const [selectedClient, setSelectedClient] = useState<Client>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -40,15 +35,7 @@ const ClientPanel: React.FC = () => {
     try {
       const response = await api.get("/client/2?include=1");
       if ( response.status === 200 ) {
-        const convert = response.data.map((client: any) => {
-          return {
-            name: client.name,
-            phoneNumber: client.phoneNumber,
-            address: `${client.street}, ${client.number}, ${client.neighborhood} - ${client.cep} - ${client.city}/${client.state}`
-          }
-        })
-        setClients( prev => convert );
-        console.log(response.data);
+        setClients(prev => response.data)
       }
 
     } catch ( error ) {
@@ -61,6 +48,26 @@ const ClientPanel: React.FC = () => {
   }, [] )
 
 
+  const handleCreateClient = (client: Client | null) => {
+    if ( client ){
+      setClients( (prev) => [...prev, client] );
+    }
+    handleCloseModal("new");
+  }
+
+  const handleDeleteProduct = async (client: Client | null) => {
+    console.log(client);
+    try {
+      const response = await api.delete(`/client/2/${client?.phoneNumber}`);
+      if ( response.status === 200 ) {
+        const remainingClients = clients.filter( (cli: Client) => { return (client?.phoneNumber !== cli.phoneNumber) } )
+        setClients(remainingClients);
+      }
+    } catch ( error ) {
+      console.error('Failed to delete product:', error);
+    }
+    handleCloseModal("delete");
+  }
   const handleSort = (field: keyof Client) => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -70,16 +77,17 @@ const ClientPanel: React.FC = () => {
     }
   };
 
-  const handleOpenModal = (modal: string, data?: Omit<Product,"status">) => {
+  const handleOpenModal = (modal: string, data?: Client | null) => {
     switch (modal){
       case "new":
         setIsNewModalOpen(true)
         break;
       case "edit":
+        if (data) setSelectedClient(data)
         setIsEditModalOpen(true)
-        setSelectedClient(data)
         break;
       case "delete":
+        if (data) setSelectedClient(data)
         setIsDeleteModalOpen(true)
         break;
       default:
@@ -131,7 +139,7 @@ const ClientPanel: React.FC = () => {
         data={clients}
         headers={[
           { label: "Nome", field: "name" },
-          { label: "Endereço", field: "address" },
+          { label: "Endereço", field: ["street", "neighborhood","complement","cep"] },
           { label: "Telefone", field: "phoneNumber" },
         ]}
         sortField={sortField}
@@ -140,7 +148,7 @@ const ClientPanel: React.FC = () => {
         filterType={filterType}
         filterStatus={filterStatus}
         onSort={handleSort}
-        actions={(product) => (
+        actions={(client) => (
           <>
             <button className="mr-6 relative group">
               <FontAwesomeIcon icon={faComment} className="text-secondary hover:text-primary" />
@@ -148,13 +156,13 @@ const ClientPanel: React.FC = () => {
                 Mandar Mensagem
               </div>
             </button>
-            <button className="mr-6 relative group" onClick={ () => handleOpenModal("edit") }>
+            <button className="mr-6 relative group" onClick={ () => handleOpenModal("edit", client) }>
               <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" />
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
                 Editar
               </div>
             </button>
-            <button className="relative group" onClick={ () => handleOpenModal("delete") }>
+            <button className="relative group" onClick={ () => handleOpenModal("delete", client) }>
               <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" />
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
                 Excluir
@@ -163,8 +171,8 @@ const ClientPanel: React.FC = () => {
           </>
         )}
       />
-      <Modal isOpen={isDeleteModalOpen} data={selectedClient?.name} title="Deletar Cliente" subtitle="Você está excluindo o cliente " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => {}}/>
-      <ClientInsertModal isOpen={isNewModalOpen} onClose={() => handleCloseModal("new")} />
+      <Modal isOpen={isDeleteModalOpen} data={selectedClient?.name} title="Deletar Cliente" subtitle="Você está excluindo o cliente " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => handleDeleteProduct(selectedClient)}/>
+      <ClientInsertModal isOpen={isNewModalOpen} onClose={handleCreateClient} />
       <ClientEditModal isOpen={isEditModalOpen} data={selectedClient} onClose={() => handleCloseModal("edit")} />
     </div>
   );

@@ -7,7 +7,7 @@ type TableProps<T> = {
   search: string;
   filterType: string | null;
   filterStatus: string | null;
-  headers: { label: string; field: keyof T }[];
+  headers: { label: string; field: keyof T | Array<keyof T> }[];
   sortField: keyof T | null;
   sortOrder: "asc" | "desc";
   onSort: (field: keyof T) => void;
@@ -77,7 +77,10 @@ const Table = <T,>({
           <tr key={index} className="text-left border-b-gray-300 border-b">
             {headers.map(({ field }) => (
               <td key={String(field)} className="px-4 py-8">
-                {item[field]}
+                {Array.isArray(field)
+                  ? field.map( (f) => item[f]).join(" - ")
+                  : item[field]
+                }
               </td>
             ))}
             {actions && (

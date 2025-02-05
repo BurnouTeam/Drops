@@ -160,7 +160,7 @@ const ProductPanel: React.FC = () => {
         ))}
         </div>
       {/* TODO: Passar a ação ao confirmar a deleção do item */}
-      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleDeleteProduct(selectedProduct)} onConfirm={() => {}}/>
+      <Modal isOpen={isDeleteModalOpen} products={products} data={selectedProduct?.name} title="Deletar Produto" subtitle="Você está excluindo o produto " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => handleDeleteProduct(selectedProduct)}/>
       <ProductInsertModal isOpen={isNewModalOpen} products={products} onClose={handleCreateProduct} />
       <ProductEditModal isOpen={isEditModalOpen} data={selectedProduct} onClose={() => handleCloseModal("edit")} />
     </div>

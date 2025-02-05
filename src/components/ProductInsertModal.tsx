@@ -19,7 +19,6 @@ type ProductFormInputs = {
 const ProductInsertModal: FC<ProductInsertModalProps> = ({ isOpen, onClose, products }) => {
 
   const [ types, setTypes ] = useState<ProductType[]>([]);
-  const [quantity, setQuantity] = useState(0);
   const {
     register,
     reset,
