@@ -29,6 +29,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
 
   const bgColor = (status === "Em Estoque") ? "bg-green-200" : (status === "Estoque Baixo") ? "bg-orange-200":"bg-red-300";
+  const low = (quantity <= 20);
+  const barColor = low ? "#FA7A00" : "#008Af6";
+  const font = !low ? "font-medium" : "font-bold";
   const data = { name: name, type: type, price: price, quantity: quantity, status: status, id: id};
 
   return (
@@ -57,9 +60,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <div className="flex items-center space-x-2 mt-4 justify-between">
       <h2>R$ {price.toFixed(2)}</h2>
     </div>
-    <div className="flex items-center space-x-2 mt-4 justify-between">
+    <div className="flex items-center align-text-bottom space-x-20 mt-4 justify-between">
       <h2 className="text-lg">{quantity} und.</h2>
-      <h2 className={`border-2 rounded-xl p-2 ${bgColor}`}>{status}</h2>
+              <div className="relative text-center m-4 h-10 w-full bg-gray-200 rounded-xl flex items-center justify-center font-semibold overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 w-full text-center border-1 h-4 rounded-xl transition-all duration-300"
+                  style={{
+                    width: `${(quantity / 100) * 100}%`,
+                    height: `40px`,
+                    backgroundColor: `${barColor}`
+                  }}
+                ></div>
+              <span className="relative z-10">{status}</span>
+              </div>
     </div>
   </div>
 
