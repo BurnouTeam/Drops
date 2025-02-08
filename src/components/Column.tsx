@@ -4,6 +4,7 @@ import {
   faHourglass,
   faCheck,
   faPaperPlane,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons'
 
 import Card from './Card';
@@ -43,6 +44,9 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
     if (kind === 'completed') {
       return <FontAwesomeIcon icon={faCheck} />
     }
+    if (kind === 'recused') {
+      return <FontAwesomeIcon icon={faBan} />
+    }
   }
   return (
     <div
@@ -61,7 +65,7 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
         </div>
       </div>
       <div
-        className={'overflow-y-auto max-h-[700px]'}
+        className={'overflow-y-auto overflow-x-hidden max-h-[700px]'}
         style={{ maxHeight: 'calc(100vh - 275px)' }}
       >
         {orders.map((order, index) => (
@@ -71,7 +75,8 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
             items={order.items}
             customer={order.client}
             status={order.status}
-            payment={"PIX"}
+            payment={order.paymentMethod}
+            default={order.default}
             updatedAt={order.createdAt}
             totalPrice={order.totalPrice}
             onEvolve={() => handleEvolveAction(index, order.status)}

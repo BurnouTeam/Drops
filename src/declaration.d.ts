@@ -48,10 +48,19 @@ type Order = {
   items: OrderItem[];
   clientId: string;
   totalPrice: number;
+  default: boolean;
+  paymentMethod: PaymentMethod;
   customer: Client;
   status: string
   payment: string;
   updatedAt: string;
+}
+
+enum PaymentMethod {
+  PIX = 'PIX',
+  CREDIT_CARD = 'CREDIT_CARD',
+  CASH = 'CASH',
+  BANK_TRANSFER = 'BANK_TRANSFER'
 }
 
 type Client = {

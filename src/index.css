@@ -20,3 +20,19 @@ body {
 }
 
 
+@keyframes glow {
+  0% {
+    border-color: rgba(59, 130, 246, 0.8);
+  }
+  50% {
+    border-color: rgba(0, 255, 255, 0.3);
+  }
+  100% {
+    border-color: rgba(59, 130, 246, 0.8);
+  }
+}
+
+.animate-glow {
+  animation: glow 1.5s infinite alternate ease-in-out;
+}
+

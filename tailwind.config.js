@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+
+const plugin = require('tailwindcss/plugin');
 export default {
   content: [
   './index.html',
@@ -11,6 +13,17 @@ export default {
   ],
   theme: {
     extend: {
+      keyframes: {
+        scroll: {
+          '0%': { transform: 'translateX(0%)' },
+          '50%': { transform: 'translateX(-100%)' },
+          '50.001%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+      },
+      animation: {
+        scroll: 'scroll 10s linear infinite',
+      },
       colors: {
         primary: '#0295FE',    // Custom primary color
         primary_light: '#F1F9FF',    // Custom primary color
@@ -29,7 +42,15 @@ export default {
       // You can also extend other properties, such as spacing, borders, etc.
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function({ addVariant, e }) {
+      addVariant('group-one-hover', ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.group-one:hover .${e(`group-one-hover${separator}${className}`)}`;
+        });
+      });
+    })
+  ],
   corePlugins: {
     fill: true,
   },

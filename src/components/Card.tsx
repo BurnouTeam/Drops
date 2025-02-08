@@ -1,4 +1,6 @@
 import React from "react";
+import { Tooltip } from "react-tippy";
+import 'react-tippy/dist/tippy.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -19,7 +21,8 @@ interface OrderCardProps {
   items: OrderItem[];
   customer: Client;
   totalPrice: number;
-  payment: string;
+  payment: PaymentMethod;
+  default: boolean;
   updatedAt: string;
   status: string;
   onEvolve: () => void;
@@ -35,11 +38,13 @@ const OrderCard: React.FC<OrderCardProps> = ({
   status = "",
   totalPrice = 0,
   updatedAt = "",
+  default: isDefault,
   onEvolve,
   onDelete,
   onMessage,
 }) => {
 
+  const defaultClass = isDefault ? "animate-glow hover:animate-none" : "border-gray-200";
   const sendMessage = () => {
     // const message = `Olá, seu pedido #${orderId} foi enviado!\nEstamos enviando sua compra para ${customer?.street}.\n\nO valor total é de R$ ${totalPrice}.\n\nObrigado por comprar conosco!`;
     // const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${message
@@ -58,12 +63,12 @@ const OrderCard: React.FC<OrderCardProps> = ({
     // })
   }
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 flex flex-col justify-between space-y-4 mb-4 overflow-x-visible">
+    <div className={`group-one hover:border-gray-400 bg-white rounded-lg shadow-md p-4 border-2 ${defaultClass} flex flex-col justify-between space-y-4 mb-4 overflow-x-visible`}>
       {/* Order Header */}
       <div className="flex justify-between items-center">
         <span className="text-gray-500 text-sm flex items-center space-x-1">
           <FontAwesomeIcon icon={faTicket} />
-          <span>#{orderId}</span>
+          <span className={`${isDefault?"text-orange-500":"text-gray-500"}`}>#{orderId}</span>
         </span>
         <span className="text-gray-500 text-sm flex items-center space-x-1">
           <FontAwesomeIcon icon={faClock} />
@@ -75,9 +80,18 @@ const OrderCard: React.FC<OrderCardProps> = ({
       <div className="flex flex-row place-content-between">
         <div className="">
           <div>
+            <Tooltip
+              title={items?.map( (item) => item.quantity + "x " + item.product.name).join("/n")}
+              position="top-start"
+              trigger="click"
+              arrow={true}
+              duration={100}
+              delay={0}
+              >
             <h2 className="text-lg text-black font-semibold mb-6">
-              {items[0]?items[0].quantity + "x":""} {items[0]?items[0].product?.name:"Pedido Vazio"}
+              {items.length > 0 ?items[0].quantity + "x":""} {items.length > 0?items[0].product?.name + ((items.length > 1)?"...":""):"Pedido Vazio"}
             </h2>
+            </Tooltip>
           </div>
           <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg">
               {items.map((item, index) => (
@@ -88,7 +102,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
             </div>
 
           {/* Customer Details */}
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 ">
             <p className="text-gray-700 flex items-center space-x-2">
               <FontAwesomeIcon icon={faUser} />
               <span>{customer?.name}</span>
@@ -97,9 +111,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
               <FontAwesomeIcon icon={faPhone} />
               <span>{customer?.phoneNumber}</span>
             </p>
-            <p className="text-gray-700 flex items-center space-x-2">
+            <p className="w-[275px] text-gray-700 flex items-center space-x-2 whitespace-nowrap text-ellipsis truncate ">
               <FontAwesomeIcon icon={faLocationDot} />
-              <span>{customer?.street}</span>
+              <span className="group-one-hover:animate-scroll">{customer?.street} - {customer?.number} - {customer?.cep}</span>
             </p>
             <p className="text-gray-700 flex items-center gap-x-6">
               {/* Payment Details */}
@@ -114,45 +128,72 @@ const OrderCard: React.FC<OrderCardProps> = ({
         {
           status==="pending" &&
 
-          <div className="flex flex-col place-content-around space-y-2 w-1/12">
-            <button onClick={() => {onEvolve(); sendMessage()}} className="relative group hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
-              <FontAwesomeIcon className="text-black " icon={faPaperPlane} />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
-                Enviar pedido
-              </div>
-            </button>
-            <button onClick={() => {onDelete()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
-              <FontAwesomeIcon className="text-black" icon={faBan} />
-              <div className="absolute bottom-full left-1/4 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                Cancelar pedido
-              </div>
-            </button>
-            <button onClick={() => {onMessage()}} className="relative group hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
-              <FontAwesomeIcon className="text-black" icon={faCommentDots} />
-              <div className="absolute bottom-full left-1/4 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                Falar com cliente
-              </div>
-            </button>
+          <div className="flex flex-col place-content-around space-y-2 ">
+            <Tooltip
+              title="Enviar"
+              position="top"
+              trigger="mouseenter"
+              arrow={true}
+              duration={100}
+              delay={100}
+            >
+              <button onClick={() => {onEvolve(); sendMessage()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2 ">
+                <FontAwesomeIcon className="text-black " icon={faPaperPlane} />
+              </button>
+            </Tooltip>
+            <Tooltip
+              title="Cancelar"
+              position="top"
+              trigger="mouseenter"
+              arrow={true}
+              duration={100}
+              delay={100}
+            >
+              <button onClick={() => {onDelete()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+                <FontAwesomeIcon className="text-black" icon={faBan} />
+              </button>
+            </Tooltip>
+            <Tooltip
+              title="Mandar Mensagem"
+              position="top"
+              trigger="mouseenter"
+              arrow={true}
+              duration={100}
+              delay={100}
+            >
+              <button onClick={() => {onMessage()}} className="relative group hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+                <FontAwesomeIcon className="text-black" icon={faCommentDots} />
+              </button>
+            </Tooltip>
           </div>
         }
         {
           status === "shipped" &&
-          <div className="flex flex-col mt-3 space-y-6 w-1/12">
-            <button onClick={() => {onEvolve()}} className="hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 space-x-2">
-              <FontAwesomeIcon className="text-black" icon={faCheck} />
-              <div className="absolute bottom-full left-1/4 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                Concluir pedido
-              </div>
+          <div className="flex flex-col mt-3 space-y-6">
+            <Tooltip
+              title="Concluir"
+              position="top"
+              trigger="mouseenter"
+              arrow={true}
+              duration={100}
+              delay={100}
+            >
+            <button onClick={() => {onEvolve()}} className=" relative group hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+                <FontAwesomeIcon className="text-black" icon={faCheck} />
             </button>
-            <button onClick={() => {onDelete()}} className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2">
-              <FontAwesomeIcon className="text-black" icon={faBan} />
-            </button>
-            {/* <button className="hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2"> */}
-            {/*   <FontAwesomeIcon className="text-black" icon={faBan} /> */}
-            {/* </button> */}
-            {/* <button className="hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center space-x-2"> */}
-            {/*   <FontAwesomeIcon className="text-black" icon={faCommentDots} /> */}
-            {/* </button> */}
+            </Tooltip>
+            <Tooltip
+              title="Cancelar"
+              position="top"
+              trigger="mouseenter"
+              arrow={true}
+              duration={100}
+              delay={100}
+            >
+              <button onClick={() => {onDelete()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center px-2 mt-2">
+                <FontAwesomeIcon className="text-black" icon={faBan} />
+              </button>
+            </Tooltip>
           </div>
         }
       </div>
