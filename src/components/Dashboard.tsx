@@ -1,8 +1,9 @@
 import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { orders as mockedOrders } from '../data/orders';
 import Column from './Column';
-import OrdersOverview from './OrdersOverview'
+import OrdersOverview from './OrdersOverview';
 import api from '../utils/api';
+import { io } from 'socket.io-client';
 
 
 interface DashboardProps {
@@ -115,6 +116,25 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
   useEffect( () => {
     fetchOrders();
+  }, [] )
+
+  useEffect( () => {
+    const socket = io('ws://localhost:3000');
+    socket.on('dataUpdate', (data) => {
+      console.log("Received data update")
+      console.log(data)
+      if ( data?.data?.status === 'pending' ){
+        setOrders( (prev) => ({
+          ...prev,
+          pending: [data.data, ...prev.pending]
+        }) )
+      }
+
+    });
+
+    return () => {
+      socket.disconnect();
+    }
   }, [] )
 
 
