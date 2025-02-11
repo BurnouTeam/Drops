@@ -29,7 +29,7 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
 
   const fetchProducts = async (): Promise<void> => {
     try {
-      const response = await api.get("/product/2");
+      const response = await api.get("/product/2?include=type");
       if ( response.status === 200 ) {
         setProducts(response.data);
       }
