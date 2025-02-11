@@ -25,11 +25,12 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
     moneyMade: 0,
   });
 
+  console.log(products)
+
   const fetchProducts = async (): Promise<void> => {
     try {
       const response = await api.get("/product/2");
       if ( response.status === 200 ) {
-        console.log(response.data)
         setProducts(response.data);
       }
 
@@ -89,7 +90,7 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
       socket.off('dataUpdate', handleDataUpdate);
     }
 
-  }, [] )
+  }, [socket] )
 
   return (
     <div
@@ -132,7 +133,7 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
             </div>
           </div>
           <div className='w-1/2'>
-            <ProgressBarCard data={products} orderBy="asc"/>
+            <ProgressBarCard key={products.length} data={products} orderBy="asc"/>
           </div>
         </div>
       )}

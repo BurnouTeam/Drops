@@ -12,10 +12,12 @@ interface ProgressBarCardProps {
 const ProgressBarCard: React.FC<ProgressBarCardProps> = ({ data = [] , orderBy="asc"}) => {
 
   const { socket } = useWebSocket();
-  const [filtered, setFiltered] = useState<Product[]>(data);
+
+  const [filtered, setFiltered] = useState<Product[]>([]);
 
   useEffect( () => {
-    // filtered = orderBy.toLowerCase() === "asc" ? data?.sort( (a,b) => {return a.quantity - b.quantity} ): data;
+    const filteredData = orderBy.toLowerCase() === "asc" ? data?.sort( (a,b) => {return a.quantity - b.quantity} ): orderBy.toLowerCase() === "desc" ? data?.sort( (a,b) => {return b.quantity - a.quantity} ) :data;
+    setFiltered(filteredData)
   }, [orderBy])
 
   useEffect( () => {
