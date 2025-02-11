@@ -8,9 +8,9 @@ Use NVM e Node 20 LTS
 nvm install lts/iron &&
 nvm use lts/iron
 ```
-Instale as dependências  
+Install dependencies 
 `npm install`
 
-## Run 
+## Run project 
 `npm run dev`
 
