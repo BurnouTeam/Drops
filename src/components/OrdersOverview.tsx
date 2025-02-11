@@ -6,6 +6,7 @@ import OverviewCard from './OverviewCard';
 import ProgressBarCard from './ProgressBarCard';
 import mockedProducts from '../data/products.ts';
 import api from '../utils/api.ts';
+import { useWebSocket } from '../hooks/useWebSocket.ts';
 
 interface OverviewProps {
   title: string;
@@ -13,6 +14,7 @@ interface OverviewProps {
 
 const Overview: React.FC<OverviewProps> = ({ title }) => {
 
+  const { socket } = useWebSocket();
   const [isOpen, setIsOpen] = useState(true);
   const [timeFilter, setTimeFilter] = useState("day");
   const [ products, setProducts ] = useState<Product[]>(mockedProducts);
@@ -70,6 +72,24 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
   useEffect( () => {
     fetchOverview();
   }, [timeFilter] )
+
+  useEffect( () => {
+    const handleDataUpdate = (data: any) => {
+      setOverviewData( (prev) => {
+        return {
+          ...prev,
+          ordersCount: prev.ordersCount + 1,
+        }
+      })
+    }
+
+    socket.on('dataUpdate', handleDataUpdate);
+
+    return () => {
+      socket.off('dataUpdate', handleDataUpdate);
+    }
+
+  }, [] )
 
   return (
     <div

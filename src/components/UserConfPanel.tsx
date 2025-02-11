@@ -2,23 +2,42 @@ import { useForm } from "react-hook-form";
 
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import { useEffect } from "react";
 
-const UserConfigurationPanel = () => {
+const ConfigurationPanel = () => {
   const { user } = useSelector( (state: RootState) => state.user )
-  console.log(user)
+  const getDefaultValues = (role?: string) => {
+    if (role === "admin") {
+      return {
+        organizationName: "",
+        organizationEmail:  "",
+        organizationCNPJ:  "",
+        organizationWppNumber: "",
+      };
+    }
+    return {
+      name: user?.name || "",
+      email: user?.email || "",
+      profilePhoto: user?.profilePhoto || "",
+      password: "",
+    };
+  };
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      name: user.name,
-      email: user.email,
-      profilePhoto: user.profilePhoto || "",
-      password: "",
-    },
+    defaultValues: getDefaultValues(user?.role?.name),
   });
+
+  // Reset the form whenever `data` changes
+  useEffect(() => {
+    if (user) {
+      reset(getDefaultValues(user?.role?.name));
+    }
+  }, [user, reset]);
 
   const onSubmit = (data) => {
     onUpdate(data); // Send updated data to the parent or API
@@ -36,8 +55,8 @@ const UserConfigurationPanel = () => {
   };
 
   return (
-    <div className="flex">
-      <div className="p-6 bg-[#F3F3F3] rounded-2xl w-1/2 flex-grow">
+      <div className="p-6 bg-[#F3F3F3] rounded-2xl w-full h-full">
+      {user?.role.name === "user" ? <div className="flex">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-left">
           Configuração de Usuário
         </h2>
@@ -125,14 +144,71 @@ const UserConfigurationPanel = () => {
             </button>
           </div>
         </form>
-      </div>
-      <div className="ml-6 p-6 bg-[#F3F3F3] rounded-2xl w-1/2">
+      </div> : null}
+      {user?.role?.name === "admin" ? <div className="ml-6 p-6 bg-[#F3F3F3] rounded-2xl w-1/2">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-left">
           Configuração da Organização
         </h2>
-      </div>
+      </div>: null}
     </div>
   );
 };
 
-export default UserConfigurationPanel;
+export default ConfigurationPanel;
+
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: getDefaultValues(user?.role?.name),
+  });
+
+  useEffect(() => {
+    if (user) {
+      reset(getDefaultValues(user?.role?.name));
+    }
+  }, [user, reset]);
+
+  const onSubmit = (data) => {
+    onUpdate(data);
+  };
+
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setValue("profilePhoto", reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-[#F3F3F3] rounded-2xl w-full h-full">
+      {user?.role?.name === "user" && (
+        <UserForm
+          register={register}
+          handleSubmit={handleSubmit}
+          onSubmit={onSubmit}
+          setValue={setValue}
+          errors={errors}
+          handlePhotoUpload={handlePhotoUpload}
+          user={user}
+        />
+      )}
+      {user?.role?.name === "admin" && (
+        <AdminForm
+          register={register}
+          handleSubmit={handleSubmit}
+          onSubmit={onSubmit}
+          errors={errors}
+        />
+      )}
+    </div>
+  );
+};

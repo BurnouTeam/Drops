@@ -6,7 +6,7 @@ import Dashboard from './Dashboard';
 import ProductPanel from './ProductPanel.tsx';
 import ClientPanel from './ClientPanel.tsx';
 import WhatsAppPanel from './WhatsAppPanel.tsx';
-import UserConfigurationPanel from './UserConfigurationPanel.tsx';
+import ConfigurationPanel from './ConfigurationPanel.tsx';
 
 const PanelPage = () => {
 
@@ -19,7 +19,7 @@ const PanelPage = () => {
       case "mensagens":
         return <WhatsAppPanel/>
       case "configuracoes":
-        return <UserConfigurationPanel/>
+        return <ConfigurationPanel/>
       case "produtos":
         return <ProductPanel />
       case "clientes":

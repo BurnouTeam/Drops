@@ -4,6 +4,7 @@ import Column from './Column';
 import OrdersOverview from './OrdersOverview';
 import api from '../utils/api';
 import { io } from 'socket.io-client';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 
 interface DashboardProps {
@@ -12,6 +13,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
   const [ orders, setOrders ] = useState<OrderContainer>(mockedOrders);
+  const { socket, on, off } = useWebSocket();
 
   const fetchOrders = async (): Promise<void> => {
     try {
@@ -119,23 +121,21 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
   }, [] )
 
   useEffect( () => {
-    const socket = io('ws://localhost:3000');
-    socket.on('dataUpdate', (data) => {
-      console.log("Received data update")
-      console.log(data)
-      if ( data?.data?.status === 'pending' ){
-        setOrders( (prev) => ({
+    const handleDataUpdate = (data: any) => {
+      if (data?.data?.status === 'pending') {
+        setOrders((prev) => ({
           ...prev,
-          pending: [data.data, ...prev.pending]
-        }) )
+          pending: [data.data, ...prev.pending],
+        }));
       }
+    };
 
-    });
+    socket.on('dataUpdate', handleDataUpdate);
 
     return () => {
-      socket.disconnect();
-    }
-  }, [] )
+      socket.off('dataUpdate', handleDataUpdate);
+    };
+  }, [on, off] )
 
 
   return (

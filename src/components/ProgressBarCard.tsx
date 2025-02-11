@@ -1,6 +1,8 @@
 import { faChartBar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { useWebSocket } from "../hooks/useWebSocket";
 
 interface ProgressBarCardProps {
   data: Product[];
@@ -9,10 +11,32 @@ interface ProgressBarCardProps {
 
 const ProgressBarCard: React.FC<ProgressBarCardProps> = ({ data = [] , orderBy="asc"}) => {
 
-  let filtered: Product[] = [];
-  if (data){
-    filtered = orderBy.toLowerCase() === "asc" ? data?.sort( (a,b) => {return a.quantity - b.quantity} ): data;
-  }
+  const { socket } = useWebSocket();
+  const [filtered, setFiltered] = useState<Product[]>(data);
+
+  useEffect( () => {
+    // filtered = orderBy.toLowerCase() === "asc" ? data?.sort( (a,b) => {return a.quantity - b.quantity} ): data;
+  }, [orderBy])
+
+  useEffect( () => {
+  const handleDataUpdate = (data: any) => {
+    const updatedProducts = data.data.items;
+
+    setFiltered(prevFiltered =>
+      prevFiltered.map(product => {
+        const updatedProduct = updatedProducts.find(p => p.id === product.id);
+        return updatedProduct ? { ...product, quantity: updatedProduct.quantity } : product;
+      })
+    );
+  };
+
+  socket.on('dataUpdate', handleDataUpdate);
+
+  return () => {
+    socket.off('dataUpdate', handleDataUpdate);
+  };
+}, [socket]);
+
 
   return (
     <div className="border-l">
