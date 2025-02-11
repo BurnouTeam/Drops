@@ -1,0 +1,13 @@
+name: Manual tests execution
+on:
+    workflow_dispatch:
+
+jobs:
+  test: 
+    name: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: test code
+        uses: actions/checkout@v2
+      - name: run tests
+        run: npm run test 
