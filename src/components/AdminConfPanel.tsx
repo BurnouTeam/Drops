@@ -18,8 +18,9 @@ interface AdminConfFormValues {
 
 const AdminConfPanel: React.FC<AdminConfPanelProps> = ({ register, handleSubmit, onSubmit, errors }) => {
 
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="ml-6 p-6 bg-[#F3F3F3] rounded-2xl">
+    <form id="globalForm" onSubmit={handleSubmit(onSubmit)} className="ml-6 p-6 bg-[#F3F3F3] rounded-2xl">
       <h2 className="text-2xl mb-10 font-bold text-gray-800 ">Configuração da Organização</h2>
 
       {/* Organization Name */}
@@ -100,6 +101,7 @@ const AdminConfPanel: React.FC<AdminConfPanelProps> = ({ register, handleSubmit,
         <div className="mt-10 flex justify-end">
           <button
             type="submit"
+            form="globalForm"
             className="rounded-lg bg-blue-600 py-3 px-6 text-lg font-medium text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Salvar Alterações

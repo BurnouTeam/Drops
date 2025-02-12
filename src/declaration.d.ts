@@ -18,6 +18,21 @@ type ProductType = {
   organizationId: number;
 };
 
+type User = {
+  id: number;
+  organizationId: number;
+  roleId: number;
+  name: string;
+  email: string;
+  profilePhoto?: string;
+  refreshToken?: string;
+};
+
+type Role = {
+  id: number;
+  name: string;
+}
+
 type OrderContainer = {
   pending: Order[];
   shipped: Order[];

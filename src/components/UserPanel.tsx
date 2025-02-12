@@ -10,6 +10,8 @@ import {
 import Table from "./Table";
 import api from "../utils/api";
 import Modal from "./Modal";
+import UserInsertModal from "./UserInsertModal";
+import UserEditModal from "./UserEditModal";
 
 
 
@@ -20,7 +22,7 @@ const UserPanel: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [clients, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -46,7 +48,7 @@ const UserPanel: React.FC = () => {
       const response = await api.get("/user/role/2");
       console.log(response)
       if ( response.status === 200 ) {
-        setRoles(prev => response.data)
+        setRoles(response.data)
       }
 
     } catch ( error ) {
@@ -63,19 +65,36 @@ const UserPanel: React.FC = () => {
   }, [] )
 
 
-  const handleCreateUser = (client: User | null) => {
-    if ( client ){
-      setUsers( (prev) => [...prev, client] );
+  const handleCreateUser = (user: User | null) => {
+    if ( user ){
+      setUsers( (prev) => [...prev, user] );
     }
     handleCloseModal("new");
   }
 
-  const handleDeleteProduct = async (client: User | null) => {
-    console.log(client);
+  const handleEditUser = (user: User | null) => {
+    if ( user ){
+      setUsers((prevUsers) =>
+          prevUsers.map((userOld) =>
+            userOld.id === user.id ? { ...user } : userOld
+        ))
+      }
+      handleCloseModal("edit");
+  }
+  const handleRoleChange = (id: number, roleId: number) => {
+    console.log(event)
+    setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === id ? { ...user, roleId: Number(roleId) } : user
+      )
+    );
+  }
+
+  const handleDeleteUser = async (user: User | null) => {
     try {
-      const response = await api.delete(`/client/2/${client?.phoneNumber}`);
+      const response = await api.delete(`/user/2/${user?.id}`);
       if ( response.status === 200 ) {
-        const remainingUsers = clients.filter( (cli: User) => { return (client?.phoneNumber !== cli.phoneNumber) } )
+        const remainingUsers = users.filter( (usr: User) => { return (user?.id !== usr.id) } )
         setUsers(remainingUsers);
       }
     } catch ( error ) {
@@ -134,6 +153,7 @@ const UserPanel: React.FC = () => {
         <h2 className="text-xl my-5 font-bold text-gray-500 ">Usuários</h2>
         <div className="flex gap-8">
           <button
+            type="button"
             onClick={() => handleOpenModal("new")}
             className="text-blue-500 px-4 py-4 border-2 border-blue-400 rounded-xl flex items-center"
           >
@@ -142,7 +162,7 @@ const UserPanel: React.FC = () => {
         </div>
       </div>
       <Table
-        data={clients}
+        data={users}
         headers={[
           { label: "Usuário", field: ["profilePhoto","name"] },
           { label: "Email", field: "email" },
@@ -154,22 +174,25 @@ const UserPanel: React.FC = () => {
         filterType={filterType}
         filterStatus={filterStatus}
         onSort={handleSort}
-        onRoleChange={() => {}}
+        onRoleChange={handleRoleChange}
         roleOptions={roles}
-        actions={(client) => (
+        actions={(user) => (
           <>
-            <button className="mr-6 relative group" onClick={ () => handleOpenModal("edit", client) }>
+            <button type="button" className="mr-6 relative group" onClick={ () => handleOpenModal("edit", user) }>
               <FontAwesomeIcon icon={faPen} className="text-secondary hover:text-primary" />
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
                 Editar
               </div>
             </button>
-            <button className="relative group" onClick={ () => handleOpenModal("delete", client) }>
+            <button type="button" className="relative group" onClick={ () => handleOpenModal("delete", user) }>
               <FontAwesomeIcon icon={faTrash} className="text-secondary hover:text-red-500" />
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
                 Excluir
               </div>
             </button>
+            <Modal isOpen={isDeleteModalOpen} data={selectedUser?.name} title="Deletar Usuário" subtitle="Você está excluindo o usuário " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => handleDeleteUser(selectedUser)}/>
+            <UserInsertModal isOpen={isNewModalOpen}  onClose={handleCreateUser} />
+            <UserEditModal isOpen={isEditModalOpen} data={selectedUser} onClose={handleEditUser} />
           </>
         )}
       />

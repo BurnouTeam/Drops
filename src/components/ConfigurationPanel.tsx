@@ -41,7 +41,8 @@ const ConfigurationPanel = () => {
   }, [user, reset]);
 
   const onSubmit = (data) => {
-    onUpdate(data); // Send updated data to the parent or API
+    // onUpdate(data); // Send updated data to the parent or API
+    console.log(data);
   };
 
   const handlePhotoUpload = (event) => {

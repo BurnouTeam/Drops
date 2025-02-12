@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
         <p className="text-gray-600 mb-6">{subtitle}<span className="font-bold">{data?" " + data:""}</span>.</p>
-        <p className="text-gray-600 mb-6">Deseja continuar?</p>
+        <p className="text-gray-600 mb-6 text-left">Deseja continuar?</p>
         <div className="flex justify-end space-x-4">
           <button
             onClick={onClose}

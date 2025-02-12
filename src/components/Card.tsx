@@ -15,6 +15,7 @@ import {
   faReceipt,
   faDollarSign,
 } from "@fortawesome/free-solid-svg-icons";
+import { formatPhoneNumber } from "../utils/phone";
 
 interface OrderCardProps {
   orderId: number;
@@ -45,22 +46,56 @@ const OrderCard: React.FC<OrderCardProps> = ({
 }) => {
 
   const defaultClass = isDefault ? "animate-glow hover:animate-none" : "border-gray-200";
+
   const sendMessage = () => {
-    // const message = `Olá, seu pedido #${orderId} foi enviado!\nEstamos enviando sua compra para ${customer?.street}.\n\nO valor total é de R$ ${totalPrice}.\n\nObrigado por comprar conosco!`;
-    // const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${message
-    // const url = `http://localhost:3001/enviar-mensagem`
-    // const splitted = customer?customer.phoneNumber.split(" "):["+55","85","996105145"];
-    // const correctPhone = splitted[0].slice(1,3) + splitted[1] + (splitted[2].length === 9 ? splitted[2].slice(1,9) : splitted[2]);
-    //
-    // console.log(items);
-    //
-    // fetch(url, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({numero:correctPhone, mensagem:message})
-    // })
+    const start = `Olá ${customer?.name}, seu pedido foi enviado!\n`;
+    const addressMessage = `Estamos enviando sua compra para\n${customer?.street} ${customer?.number}.\n\n`;
+    const orderMessage = `Items no pedido:\n\n ${items.map((item)=>{return item.quantity +"x " + item.product.name + "\n"})}\n*Totalizando: R$ ${totalPrice}.*\n\n`;
+    const end = `Obrigado por comprar conosco!`;
+    const message = `${start}${addressMessage}${orderMessage}${end}`;
+    const url = `http://localhost:3001/send`;
+    const correctPhone = formatPhoneNumber(customer.phoneNumber);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({clientId:correctPhone, content:message})
+    })
+  }
+  const recuseMessage = () => {
+    const start = `Olá ${customer?.name}, seu pedido foi cancelado!\n\n`;
+    const reasonMessage = `Infelizmente não poderemos atendê-lo por motivo de força maior, pedimos nossas *sinceras* *DESCULPAS*\n\n`;
+    const supportMessage = `Não se preocupe, seu dinhero será reembolsado logo mais. `;
+    const end = `Obrigado por comprar conosco!`;
+    const message = `${start}${reasonMessage}${supportMessage}${end}`;
+    const url = `http://localhost:3001/send`;
+    const correctPhone = formatPhoneNumber(customer.phoneNumber);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({clientId:correctPhone, content:message})
+    })
+  }
+
+  const finishMessage = () => {
+    const start = `Mais uma vez ficamos muito felizes em lhe atender, *${customer?.name}*!\n\n`;
+    const end = `Obrigado por comprar conosco e até a próxima!`;
+    const message = `${start}${end}`;
+    const url = `http://localhost:3001/send`;
+    const correctPhone = formatPhoneNumber(customer.phoneNumber);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({clientId:correctPhone, content:message})
+    })
   }
   return (
     <div className={`group-one hover:border-gray-400 bg-white rounded-lg shadow-md p-4 border-2 ${defaultClass} flex flex-col justify-between space-y-4 mb-4 overflow-x-visible`}>
@@ -149,7 +184,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-              <button onClick={() => {onDelete()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+              <button onClick={() => {onDelete();recuseMessage()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
                 <FontAwesomeIcon className="text-black" icon={faBan} />
               </button>
             </Tooltip>
@@ -178,7 +213,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-            <button onClick={() => {onEvolve()}} className=" relative group hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+            <button onClick={() => {onEvolve();finishMessage()}} className=" relative group hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
                 <FontAwesomeIcon className="text-black" icon={faCheck} />
             </button>
             </Tooltip>
@@ -190,7 +225,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-              <button onClick={() => {onDelete()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center px-2 mt-2">
+              <button onClick={() => {onDelete();recuseMessage()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center px-2 mt-2">
                 <FontAwesomeIcon className="text-black" icon={faBan} />
               </button>
             </Tooltip>
