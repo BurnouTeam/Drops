@@ -25,7 +25,6 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
     moneyMade: 0,
   });
 
-  console.log(products)
 
   const fetchProducts = async (): Promise<void> => {
     try {

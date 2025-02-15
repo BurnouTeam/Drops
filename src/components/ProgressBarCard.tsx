@@ -20,8 +20,6 @@ const ProgressBarCard: React.FC<ProgressBarCardProps> = ({ data = [] , orderBy="
     setFiltered(filteredData)
   }, [orderBy])
 
-  console.log(data[0]?data[0]:"Nada")
-
   useEffect( () => {
   const handleDataUpdate = (data: any) => {
     const updatedProducts = data.data.items;

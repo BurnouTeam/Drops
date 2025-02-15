@@ -19,7 +19,6 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
     try {
       const response = await api.get("/order/2");
       if ( response.status === 200 ) {
-        console.log(response.data)
         setOrders(response.data);
       }
     } catch ( error ) {
@@ -29,7 +28,6 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
 
 
   const changeOrder = async (item: Order, changeType: string): Promise<void> => {
-    console.log(item);
     try {
       const response = await api.patch(`/order/${changeType}/${item.id}`, {
         organizationId: item.organizationId,
