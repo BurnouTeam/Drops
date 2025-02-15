@@ -1,10 +1,6 @@
 import clients from "./clients";
 
-type Client = {
-  name: string;
-  phone: string;
-  address: string;
-};
+
 type Message = {
   text: string,
   sender: string,
