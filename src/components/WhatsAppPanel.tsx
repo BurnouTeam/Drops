@@ -1,32 +1,34 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setMenu, setChatId } from "../redux/appSlice";
+import { AppDispatch, RootState } from '../redux/store';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUserCircle, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
-import chatMessages from "../data/messages";
-import api from "../utils/api";
-
-// TODO: Remove this two types, they should be global
-type Message = {
-  text: string,
-  sender: string,
-  timestamp: string,
-  // TODO: Destination should be mandatory it is not for testing
-  destination?: string,
-}
-type ChatMessages = {
-  id: number,
-  name: string,
-  phone: string,
-  address: string,
-  messages: Message[]
-}
+import api, { botApi } from "../utils/api";
+import QRCodeComponent from "./QRCodeComponent";
+import { useWebSocket } from "../hooks/useWebSocket";
 
 type Chat = {
-  clientName: string,
-  messages: ChatMessages[]
+  client: Client,
+  messages: Messages[]
 }
 
-type ChatMessagesModel = {
+type ChatLastInteraction = {
+  chatId:string,
+  clientId:string,
+  clientName:string,
+  clientNumber:string,
+  clientProfilePhoto:string,
+  content:string,
+  sentAt:string,
+  fromMe:boolean,
+  status:string,
+  mediaType:string,
+  messageType:string,
+}
+
+type Messages = {
   id:number,
   whatsappMessageId:string,
   content:string,
@@ -42,14 +44,18 @@ type ChatMessagesModel = {
 }
 
 interface SidebarProps {
-  handleClick: React.Dispatch<React.SetStateAction<number>>;
-  selectedChat: number;
-  chatMessages: ChatMessagesModel[];
+  chatCards: ChatLastInteraction[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ handleClick, selectedChat, chatMessages }) => (
-  <div className="w-1/4 bg-gray-100 h-full flex flex-col">
-    <div className="flex items-center px-4 py-[10px] border-b border-r border-gray-300 bg-white">
+const Sidebar: React.FC<SidebarProps> = ({ chatCards }) =>{
+
+  const chatId = useSelector((state: RootState) => state.app.chatId);
+  const dispatch: AppDispatch = useDispatch();
+
+
+  return (
+  <div className="w-1/4 bg-gray-100 h-full flex flex-col overflow-hidden">
+    <div className="flex border-b border-r items-center px-4 py-[10px] bg-white">
       <input
         type="text"
         placeholder="Procure uma conversa."
@@ -57,39 +63,58 @@ const Sidebar: React.FC<SidebarProps> = ({ handleClick, selectedChat, chatMessag
       />
       <FontAwesomeIcon icon={faSearch} className="text-gray-600 ml-2" />
     </div>
-    <div className="overflow-y-auto overflow-x-hidden whitespace-nowrap bg-white h-full flex-grow border-r">
-      {chatMessages.map((chat, index) => (
-        <div className="flex flex-row">
-          <button onClick={() => {handleClick(chat.id)}} key={chat.id} className="flex-grow" >
-            <div className={`flex items-center px-2 py-3 hover:bg-gray-200 cursor-pointer border-b border-gray-300 ${chat.id - 1 === selectedChat? "bg-blue-100" : ""}`}>
+    <div className="overflow-y-auto overflow-x-hidden bg-white border-r border-gray-300 w-full h-full">
+      {chatCards?.map((chat, index) => {
+
+        return (
+        <button onClick={() => {dispatch(setChatId(chat.clientId));}} key={chat.clientId} className={`w-full border-b border-gray-300 hover:bg-gray-200 cursor-pointer ${chat.clientId === chatId? "bg-blue-100" : ""}`} >
+          <div className="w-full p-2">
+            <div className={`flex items-center `}>
               <FontAwesomeIcon icon={faUserCircle} className="text-3xl text-gray-600 mr-3" />
-              <div className="flex flex-col justify-items-start">
-                <div className="text-left font-semibold ">{chat.clientId} <span className="font-light ">{chat.clientId}</span></div>
-                <div className="text-left text-sm text-gray-500">
-                  {chatMessages[chatMessages.length - 1].content}
+              <div className="flex flex-col justify-items-start min-w-0 truncate">
+                <div className="w-full text-left font-semibold truncate">{chat.clientName} <span className="font-light">{chat.clientId}</span></div>
+                <div className="w-full text-left text-sm text-gray-500 truncate min-w-0 ">
+                  {chat.content}
                 </div>
               </div>
             </div>
-          </button>
-        </div>
-      ))}
+          </div>
+        </button>
+      )})}
     </div>
   </div>
-);
+)};
 
 const WhatsAppPanel: React.FC = () => {
-  // const chat2 = chatMessages[chatId];
-  const [ currentChat, setCurrentChat ] = useState<Chat>({clientName:"Default",messages:[]});
-  const [ messages, setMessages ] = useState<ChatMessagesModel[]>([]);
-  const [ chats, setChats ] = useState<ChatMessagesModel>(null);
+  const [ isSessionActive, setIsSessionActive ] = useState(true);
+
+  const chatId = useSelector((state: RootState) => state.app.chatId);
+  const [ currentChatMessages, setCurrentChatMessages ] = useState<Chat>(null);
+  const [ chats, setChats ] = useState<ChatLastInteraction[]>(null);
   const [ orgId, setOrgId ] = useState(2);
+  const [ input, setInput ] = useState("");
+  const { sendEvent, socket, botSocket } = useWebSocket();
+
+  const handleSend = () => {
+    if ( input.trim() !== ""  ) {
+      const msg = { content: input, chatId: chatId, sentAt: new Date() }
+      sendEvent('send-message', msg);
+      setCurrentChatMessages( (prev) => {
+        return {
+          ...prev,
+          messages: [...prev.messages, msg ]
+        }
+      } )
+      setInput("");
+    }
+  }
+
 
   const fetchChats = async (): Promise<void> => {
     try {
-      const response = await api.get("/org/2/chat/+5585996105145");
+      const response = await api.get(`/org/${orgId}/chat/lastChats`);
       if ( response.status === 200 ) {
-        console.log(response.data)
-        setMessages(response.data);
+        setChats(response.data);
       }
 
     } catch ( error ) {
@@ -99,16 +124,12 @@ const WhatsAppPanel: React.FC = () => {
 
   const fetchCurrentChat = async (clientId: string): Promise<void> => {
     try {
-      const response = await api.get(`/org/2/chat/${clientId}/messages`);
+      const response = await api.get(`/org/${orgId}/chat/${clientId}/messages`);
       if ( response.status === 200 ) {
-        const responseClientData = await api.get(`/client/2/${clientId}`)
-        if (responseClientData.status === 200) {
-          const chat = {
-            clientName: responseClientData.data.name,
-            messages: response.data.reverse()
-          }
-          setCurrentChat(chat);
-        }
+        let data = response.data;
+        data.messages = data.messages.reverse();
+
+        setCurrentChatMessages(data);
       }
 
     } catch (error){
@@ -117,55 +138,111 @@ const WhatsAppPanel: React.FC = () => {
   }
 
   useEffect( () => {
-    // fetchChats();
-    fetchCurrentChat("+5585996105145");
+    fetchChats();
   }, [] )
 
-  if (!messages)
+  useEffect( () => {
+    botSocket.on('new-message', (data) => {console.log(data)})
+    return () => {
+        botSocket.off('new-message');
+    };
+  }, [] )
+
+  useEffect( () => {
+    fetchCurrentChat(chatId);
+  }, [chatId] )
+
+  // TODO: WAY OF GET THE MESSAGES
+  // useEffect( () => {
+  //   const handleRecieve = (data: any) => {
+  //       setCurrentChatMessages( (prev) => {
+  //         return {
+  //           ...prev,
+  //           messages: [...prev.messages, data ]
+  //         }
+  //       })
+  //   }
+  //   botSocket.on('new-message', handleRecieve)
+  //
+  //   return () => {
+  //     botSocket.off('new-message', handleRecieve);
+  //   };
+  // }, [] )
+
+  useEffect(() => {
+      // Check if session is active
+      const checkSession = async () => {
+          try {
+              const response = await botApi.get('/wweb/session');
+              setIsSessionActive(response.data.isSessionActive);
+              console.log("Pegando a sessão: ", response.data.isSessionActive)
+              if (!response.data.isSessionActive){
+                sendEvent('bot','request-qr');
+              }
+          } catch (error) {
+              console.error('Failed to check session:', error);
+          }
+      };
+
+      checkSession();
+  }, [] )
+
+  if (chatId === 'Teste' )
     return (
-      <div className="flex items-center w-full h-full bg-white-50 text-gray-500">
-        {/* <Sidebar handleClick={setCurrentChat} chatMessages={messages}/> */}
-        <div className="flex items-center justify-center w-full h-full bg-white-50 text-gray-500">
-          <p>Selecione uma conversa para ver as mensagens.</p>
+      <div className="flex items-center w-full h-full bg-green-50 text-gray-500 border border-gray-300">
+        <Sidebar chatCards={chats} />
+        <div className="w-full h-full flex flex-col">
+          <div className="flex items-center justify-center w-full h-full bg-white-50 text-gray-500">
+            <p>Selecione uma conversa para ver as mensagens.</p>
+          </div>
         </div>
       </div>
     );
 
 
   return (
-    <div className="w-full px-8 h-full flex flex-row">
-      {/* <Sidebar handleClick={setCurrentChat} chatMessages={messages} selectedChat={currentChat}/> */}
-      <div className="w-full h-full flex flex-col">
-        <div className="flex items-center px-4 py-[9.5px] bg-secondary border-b border-gray-300">
-          <FontAwesomeIcon icon={faUserCircle} className="text-3xl text-white mr-3" />
-          <div>
-            <div className="font-semibold text-white">{currentChat?.clientName}</div>
-          </div>
-        </div>
-        <div className="flex-grow overflow-y-auto p-4 bg-white">
-          {currentChat.messages?.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`mb-4 ${msg.fromMe ? "text-right mr-5" : "text-left ml-5"}`}
-            >
-              <div className={`inline-block px-3 py-2 rounded-lg ${!msg.fromMe ? "bg-green-100 right-0" : "bg-gray-100"}`}>
-                {msg.content}
+    <div className="w-full  h-full flex flex-row border border-gray-300">
+          {!isSessionActive ? (
+          <div className="flex">
+            <Sidebar chatCards={chats} />
+            <div className="w-full h-full flex flex-col">
+              <div className="flex items-center px-4 py-[9.5px] bg-secondary border-b border-gray-300">
+                <FontAwesomeIcon icon={faUserCircle} className="text-3xl text-white mr-3" />
+                <div>
+                  <div className="font-semibold text-white">{currentChatMessages?.client?.name}</div>
+                </div>
               </div>
-              <div className="text-xs text-gray-500 mt-1">{msg.sentAt.toString()}</div>
+              <div className="flex-grow overflow-y-auto p-4 bg-white">
+                {currentChatMessages?.messages?.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`mb-4 ${msg.fromMe ? "text-right mr-5" : "text-left ml-5"}`}
+                  >
+                    <div className={`inline-block px-3 py-2 rounded-lg ${msg.fromMe ? "bg-green-100 right-0" : "bg-gray-100"}`}>
+                      {msg.content}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{new Date(msg.sentAt).toLocaleTimeString('pt-BR')}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center px-4 py-2 bg-white border-t">
+                <input
+                  type="text"
+                  placeholder="Digite sua mensagem."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => { if (e.key === 'Enter') { handleSend() } }}
+                  className="flex-grow bg-white px-3 py-2 rounded border border-gray-300 focus:outline-none"
+                />
+                <button onClick={() => { handleSend() }}className="ml-2 text-gray-500 hover:text-blue-800">
+                  <FontAwesomeIcon icon={faPaperPlane} className="text-xl" />
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="flex items-center px-4 py-2 bg-white border-t">
-          <input
-            type="text"
-            placeholder="Digite sua mensagem."
-            className="flex-grow bg-white px-3 py-2 rounded border border-gray-300 focus:outline-none"
-          />
-          <button className="ml-2 text-gray-500">
-            <FontAwesomeIcon icon={faPaperPlane} className="text-xl" />
-          </button>
-        </div>
-      </div>
+          </div>
+          )
+      : (<QRCodeComponent setSession={setIsSessionActive}/>)
+    }
     </div>
   );
 };

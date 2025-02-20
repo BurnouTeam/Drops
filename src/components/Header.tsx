@@ -12,19 +12,21 @@ import {
   faBell,
   faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { RootState } from '../redux/store';
+import { RootState, UserState } from '../redux/store';
 import { logout } from '../redux/userSlice.js';
+import { setMenu } from '../redux/appSlice.js';
 import { Drops } from '../assets/drops.jsx'
 
 
 interface HeaderProps {
-  onChangeTab: Dispatch<SetStateAction<string>>
-  selectedTab: string
+  onChangeTab?: Dispatch<SetStateAction<string>>
+  selectedTab?: string
 }
 
 
 const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
   const { user } = useSelector( (state: RootState) => state.user );
+  const { menu } = useSelector( (state: UserState) => state.app.menu );
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -48,45 +50,45 @@ const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
           <nav className="flex items-center space-x-8">
             <button
               className={`${
-                selectedTab === "dashboard" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                menu === "dashboard" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => onChangeTab("dashboard")}
+              onClick={() => dispatch(setMenu("dashboard"))}
             >
               <FontAwesomeIcon icon={faTableColumns} />
               <span>Dashboard</span>
             </button>
             <button
               className={`${
-                selectedTab === "mensagens" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                menu === "mensagens" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => onChangeTab("mensagens")}
+              onClick={() => dispatch(setMenu("mensagens"))}
             >
               <FontAwesomeIcon icon={faComments} />
               <span>Mensagens</span>
             </button>
             <button
               className={`${
-                selectedTab === "produtos" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                menu === "produtos" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => onChangeTab("produtos")}
+              onClick={() => dispatch(setMenu("produtos"))}
             >
               <FontAwesomeIcon icon={faCartShopping} />
               <span>Produtos</span>
             </button>
             <button
               className={`${
-                selectedTab === "clientes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                menu === "clientes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg  rounded-md hover:text-blue-700`}
-              onClick={() => onChangeTab("clientes")}
+              onClick={() => {dispatch(setMenu("clientes"))}}
             >
               <FontAwesomeIcon icon={faPerson} />
               <span>Clientes</span>
             </button>
             <button
               className={`${
-                selectedTab === "configuracoes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
+                menu === "configuracoes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => onChangeTab("configuracoes")}
+              onClick={() => dispatch(setMenu("mensagens"))}
             >
               <FontAwesomeIcon icon={faGear} />
               <span>Configurações</span>

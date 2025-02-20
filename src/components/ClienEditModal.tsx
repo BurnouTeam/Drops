@@ -41,6 +41,8 @@ const ClientEditModal: FC<ClientEditModalProps> = ({ isOpen, onClose, data }) =>
       complement: data?.complement ?? "",
       neighborhood: data?.neighborhood ?? "",
       cep: data?.cep ?? "",
+      city: "",
+      state: "",
     }
   });
 
@@ -57,37 +59,38 @@ const ClientEditModal: FC<ClientEditModalProps> = ({ isOpen, onClose, data }) =>
         complement: data?.complement ?? "",
         neighborhood: data?.neighborhood ?? "",
         cep: data?.cep ?? "",
+        city: "",
+        state: "",
       });
     }
   }, [data, reset]);
 
-  const createClient = async (data: ClientFormInputs): Promise<Client> => {
+  const editClient = async (data: ClientFormInputs): Promise<Client> => {
     try {
       data.organizationId = 2;
-      const response = await api.post<Client>(`/client`, {
+      const response = await api.patch<Client>(`/client/2/${data?.phoneNumber}`, {
         ...data
       });
 
-      if (response.status !== 201) {
-        throw new Error("Cliente não foi criado com sucesso.")
+      if (response.status !== 200) {
+        throw new Error("Cliente não foi editado com sucesso.")
       }
       return response.data;
 
     } catch (error) {
-      console.error("Erro ao criar o cliente:", error);
-      throw new Error("Cliente não foi criado com sucesso.")
+      console.error("Erro ao editar o cliente:", error);
+      throw new Error("Cliente não foi editado com sucesso.")
     }
   }
 
   if (!isOpen) return null;
 
   const onSubmit: SubmitHandler<ClientFormInputs> = async (data) => {
-    const client: Client = await createClient(data);
-    if (client){
-      console.log(client)
+    const client: Client = await editClient(data);
+    if (client) {
       onClose(client)
+      console.log("Pq n fecha")
     }
-    console.log(data);
   }
 
   return (

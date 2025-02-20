@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useRef } from 'react';
 import { orders as mockedOrders } from '../data/orders';
 import Column from './Column';
 import OrdersOverview from './OrdersOverview';
@@ -8,12 +8,23 @@ import { useWebSocket } from '../hooks/useWebSocket';
 
 
 interface DashboardProps {
-  onChangeTab: Dispatch<SetStateAction<string>>
 }
 
-const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
+const Dashboard: React.FC<DashboardProps> =  () => {
   const [ orders, setOrders ] = useState<OrderContainer>(mockedOrders);
   const { socket, on, off } = useWebSocket();
+  // Add refs for all columns
+  const pendingRef = useRef<HTMLDivElement | null>(null);
+  const shippedRef = useRef<HTMLDivElement | null>(null);
+  const completedRef = useRef<HTMLDivElement | null>(null);
+  const recusedRef = useRef<HTMLDivElement | null>(null);
+
+  const columnRefs = {
+    pending: pendingRef,
+    shipped: shippedRef,
+    completed: completedRef,
+    recused: recusedRef,
+  };
 
   const fetchOrders = async (): Promise<void> => {
     try {
@@ -144,10 +155,10 @@ const Dashboard: React.FC<DashboardProps> =  ({ onChangeTab }) => {
           </div>
           <div className="overflow-x-auto">
             <div className="flex justify-between min-w-max min-h-96">
-              <Column title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-              <Column title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-              <Column title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
-              <Column title="Pedidos Cancelados" color="#800000" orders={orders.recused} kind="recused" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} handleMessage={(id: number) => { onChangeTab('mensagens') }}/>
+              <Column ref={pendingRef} columnRefs={columnRefs} title="Pedidos Pendentes" color="#4d8bea" orders={orders.pending} kind="pending" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} />
+              <Column ref={shippedRef} columnRefs={columnRefs} title="Pedidos Enviados" color="#f99236" orders={orders.shipped} kind="shipped" handleEvolution={handleEvolveOrder} handleDelete={handleCancelOrder} />
+              <Column ref={completedRef} columnRefs={columnRefs} title="Pedidos Concluídos" color="#14B891" orders={orders.completed} kind="completed" handleEvolution={handleEvolveOrder} handleDelete={()=>{}} />
+              <Column ref={recusedRef} columnRefs={columnRefs} title="Pedidos Cancelados" color="#800000" orders={orders.recused} kind="recused" handleEvolution={handleEvolveOrder} handleDelete={()=>{}}/>
             </div>
           </div>
         </div>

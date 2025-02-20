@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../redux/store';
 import { Dispatch, SetStateAction, useState } from "react";
 import Header from "./Header";
 import Dashboard from './Dashboard';
@@ -10,12 +11,12 @@ import ConfigurationPanel from './ConfigurationPanel.tsx';
 
 const PanelPage = () => {
 
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const menu = useSelector( (state: RootState) => state.app.menu );
 
-  const renderMainContent = (onChangeTab : Dispatch<SetStateAction<string>>) => {
-    switch (activeTab) {
+  const renderMainContent = () => {
+    switch (menu) {
       case "dashboard":
-        return <Dashboard onChangeTab={onChangeTab}/>
+        return <Dashboard/>
       case "mensagens":
         return <WhatsAppPanel/>
       case "configuracoes":
@@ -32,9 +33,9 @@ const PanelPage = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header onChangeTab={setActiveTab} selectedTab={activeTab}/>
+      <Header />
       <main className="flex-grow p-8 bg-[#FAFAFA]">
-        {renderMainContent(setActiveTab)}
+        {renderMainContent()}
       </main>
     </div>
   );

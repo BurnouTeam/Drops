@@ -115,7 +115,7 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
           <div className="w-1/2 rounded-lg">
             <div className={`flex flex-row mb-4`}>
               <h2 className={`text-xl font-bold mb-2 text-black`}>{<FontAwesomeIcon icon={faChartBar} />} {title}</h2>
-              <button onClick={() => setTimeFilter("day")} className={`px-4 py-0 ml-4 rounded-full border-2 ${timeFilter === "day"? "border-indigo-500": "border-indigo-200"} text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300`}>
+              <button onClick={() => {setTimeFilter("day")}} className={`px-4 py-0 ml-4 rounded-full border-2 ${timeFilter === "day"? "border-indigo-500": "border-indigo-200"} text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300`}>
                   Diário
               </button>
               <button onClick={() => setTimeFilter("month")} className={`px-4 py-0 ml-4 rounded-full border-2 ${timeFilter === "month"? "border-indigo-500": "border-indigo-200"} text-custom-blue hover:bg-custom-blue hover:text-white transition duration-300`}>
@@ -128,7 +128,7 @@ const Overview: React.FC<OverviewProps> = ({ title }) => {
             >
                 <OverviewCard key={1} id={'1'} title={`Pedidos do ${timeFilter === "day"? "Dia": "Mês"}`} number={overviewData.ordersCount}/>
                 <OverviewCard key={2} id={'2'} title={'Novos Clientes'} number={overviewData.clientsCount}/>
-                <OverviewCard key={3} id={'3'} title={`Faturamento do ${timeFilter === "day"? "Dia": "Mês"}`} number={overviewData.moneyMade.toFixed(2)}/>
+                <span id='rewardId'><OverviewCard key={3} id={'3'} title={`Faturamento do ${timeFilter === "day"? "Dia": "Mês"}`} number={overviewData.moneyMade.toFixed(2)}></OverviewCard></span>
             </div>
           </div>
           <div className='w-1/2'>

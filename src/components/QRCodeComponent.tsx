@@ -2,24 +2,33 @@ import { useEffect, useState } from 'react';
 import { QRCodeSVG as QRCode } from 'qrcode.react'
 import axios from 'axios';
 import io from 'socket.io-client';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 // Socket connection
-const socket = io('http://localhost:3001', {
-    transports: ['websocket']
-});
+// const socket = io('http://localhost:3001', {
+//     transports: ['websocket'],
+//     reconnection: true,
+//     reconnectionAttempts: 5,
+//     reconnectionDelay: 10000,
+//     reconnectionDelayMax: 30000,
+// });
 
-const QRCodeComponent = () => {
+interface QRCodeComponentProps {
+  setSession: React.Dispatch<React.SetStateAction<boolean>>;
+  data: string;
+}
 
-  const [isSessionActive, setIsSessionActive] = useState(false);
+const QRCodeComponent: React.FC<QRCodeComponentProps> = ({ setSession, data }) => {
+
   const [qrCode, setQrCode] = useState('');
-  const [status, setStatus] = useState('');
+  const { socket } = useWebSocket();
 
   useEffect(() => {
       // Check if session is active
       const checkSession = async () => {
           try {
               const response = await axios.get('http://localhost:3001/wweb/session');
-              setIsSessionActive(response.data.isSessionActive);
+              setSession(response.data.isSessionActive);
               console.log("Pegando a sessão: ", response.data.isSessionActive)
               if (!response.data.isSessionActive){
                 socket.emit('request-qr');
@@ -34,23 +43,21 @@ const QRCodeComponent = () => {
 
       socket.on('qr', (qr) => {
           setQrCode(qr);
-          setStatus('Scan the QR Code');
           console.log("QR:", qr)
       });
 
       socket.on('ready', () => {
-          setIsSessionActive(true);
+          setSession(true);
           console.log("READY")
       });
 
       socket.on('authenticated', () => {
-        setStatus('WhatsApp Connected');
         setQrCode(null);
+        setSession(true);
         console.log("AUTHENTICATED")
       });
 
       socket.on('disconnected', () => {
-        setStatus('Disconnected. Refresh to reconnect.');
         setQrCode(null);
         console.log("DISCONNECTED")
       });
@@ -59,11 +66,16 @@ const QRCodeComponent = () => {
         console.log(message)
       });
 
+      socket.on('new-message', (message) => {
+        console.log(message)
+      });
+
     return () => {
       socket.off('qr');
       socket.off('ready');
       socket.off('authenticated');
       socket.off('disconnected');
+      socket.off('new-message');
     };
   }, []);
 
@@ -73,29 +85,18 @@ const QRCodeComponent = () => {
 
   return (
       <div className="w-full justify-center items-center place-items-center">
-          {isSessionActive ? (
-              <div>
-                <h1>Chat Window</h1>
-                  <button
-                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-                    onClick={handleDisconnect}
-                  >
-                    Disconnect
-                  </button>
-              </div>
-              // Your chat component goes here
+      {
+        qrCode ? (
+          <div className="flex h-full gap-y-10 flex-col items-center justify-center text-center w-full m-auto">
+              <h1>Escaneie o QR Code para começar a usar o chat</h1>
+              <QRCode width={300} height={300} value={qrCode} />
+                  </div>
           ) : (
-              qrCode ? (
-                  <div className="flex h-full gap-y-10 flex-col items-center justify-center text-center w-full m-auto">
-                      <h1>Escaneie o QR Code para começar a usar o chat</h1>
-                      <QRCode width={300} height={300} value={qrCode} />
-                  </div>
-              ) : (
-                  <div className="flex gap-y-10 flex-col items-center justify-center text-center w-full m-auto">
-                    <h1>Loading...</h1>
-                  </div>
-              )
-          )}
+          <div className="flex gap-y-10 flex-col items-center justify-center text-center w-full m-auto">
+            <h1>Loading...</h1>
+          </div>
+        )
+      }
       </div>
   );
 };

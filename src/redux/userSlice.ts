@@ -7,10 +7,10 @@ interface UserState {
         id: string;
         name: string;
         email: string;
-        role: {
+        role?: {
           id: number,
           name: string,
-        }
+        } | null;
     } | null;
     token: string | null;
 }

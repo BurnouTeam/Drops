@@ -3,28 +3,53 @@ import { websocketService } from '../services/websocketService';
 
 export function useWebSocket() {
   const [socket, setSocket] = useState(websocketService.getSocket());
+  const [botSocket, setBotSocket] = useState(websocketService.getSocket('bot'));
 
   useEffect(() => {
-    const handleOpen = () => {
+    const handleApiOpen = () => {
       console.log('WebSocket connected');
       setSocket(websocketService.getSocket());
     };
 
-    const handleClose = () => {
+    const handleApiClose = () => {
       console.log('WebSocket disconnected');
       setSocket(null);
     };
 
-    websocketService.getSocket().on('open', handleOpen);
-    websocketService.getSocket().on('close', handleClose);
+    const handleApiMessage = (data: any) => {
+      console.log('WebSocket disconnected');
+    };
+
+    const handleBotOpen = () => {
+      console.log('WebSocket connected');
+      setBotSocket(websocketService.getSocket('bot'));
+    };
+
+    const handleBotClose = () => {
+      console.log('WebSocket disconnected');
+      setSocket(null);
+    };
+
+    const handleBotMessage = (data: any) => {
+      console.log('WebSocket disconnected');
+    };
+
+    socket.on('open', handleApiOpen);
+    socket.on('close', handleApiClose);
+    botSocket.on('open', handleBotOpen);
+    botSocket.on('close', handleBotClose);
 
     return () => {
-      websocketService.getSocket().off('open', handleOpen);
-      websocketService.getSocket().off('close', handleClose);
+      socket.off('open', handleApiOpen);
+      socket.off('close', handleApiClose);
+      botSocket.off('open', handleBotOpen);
+      botSocket.off('close', handleBotClose);
     };
   }, []);
 
-  return {
-    socket: websocketService.getSocket(),
-  };
+  const sendEvent = (which: string, event: string, msg?: any) => {
+    websocketService.sendMessage(which, event, msg)
+  }
+
+  return { socket, botSocket, sendEvent };
 }

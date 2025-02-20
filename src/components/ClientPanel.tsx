@@ -37,7 +37,6 @@ const ClientPanel: React.FC = () => {
       if ( response.status === 200 ) {
         setClients(prev => response.data)
       }
-
     } catch ( error ) {
       console.error('Failed to fetch orders:', error);
     }
@@ -53,6 +52,15 @@ const ClientPanel: React.FC = () => {
       setClients( (prev) => [...prev, client] );
     }
     handleCloseModal("new");
+  }
+
+  const handleEditClient = (client: Client | null) => {
+    if ( client ) {
+      setClients((prev) =>
+        prev.map((c) => (c.phoneNumber === client.phoneNumber ? client : c))
+      );
+    }
+    handleCloseModal("edit");
   }
 
   const handleDeleteProduct = async (client: Client | null) => {
@@ -173,7 +181,7 @@ const ClientPanel: React.FC = () => {
       />
       <Modal isOpen={isDeleteModalOpen} data={selectedClient?.name} title="Deletar Cliente" subtitle="Você está excluindo o cliente " confirmText="Apagar"  onClose={() => handleCloseModal("delete")} onConfirm={() => handleDeleteProduct(selectedClient)}/>
       <ClientInsertModal isOpen={isNewModalOpen} onClose={handleCreateClient} />
-      <ClientEditModal isOpen={isEditModalOpen} data={selectedClient} onClose={() => handleCloseModal("edit")} />
+      <ClientEditModal isOpen={isEditModalOpen} data={selectedClient} onClose={handleEditClient} />
     </div>
   );
 };

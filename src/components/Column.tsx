@@ -1,5 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AnimatePresence } from 'framer-motion';
 import {
   faHourglass,
   faCheck,
@@ -14,12 +15,19 @@ interface ColumnProps {
   color: string;
   kind: string;
   orders: Order[];
+  columnRefs: {
+    pending: React.RefObject<HTMLDivElement>,
+    shipped: React.RefObject<HTMLDivElement>,
+    completed: React.RefObject<HTMLDivElement>,
+    recused: React.RefObject<HTMLDivElement>,
+  }
+  revert?: boolean;
   handleEvolution: (at: number, to: string, from: string) => void;
   handleDelete: (at: number, from: string) => void;
   handleMessage: (id: number) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolution, handleDelete, handleMessage }) => {
+const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, columnRefs, revert, handleEvolution, handleDelete, handleMessage }) => {
 
   const handleEvolveAction = (id: number, from: string) => {
     const type = kind === 'pending'? 'shipped' : 'completed';
@@ -48,6 +56,18 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
       return <FontAwesomeIcon icon={faBan} />
     }
   }
+
+  const getColumnRef = (kind: string) => {
+    if (kind === 'pending') {
+      return [columnRefs['shipped'], columnRefs['recused']]
+    }
+    if (kind === 'shipped') {
+      return [columnRefs['completed'], columnRefs['recused']]
+    }
+    else {
+      return []
+    }
+  }
   return (
     <div
       className={`p-8 min-w-96 rounded-3xl flex flex-col self-stretch`}
@@ -64,26 +84,29 @@ const Column: React.FC<ColumnProps> = ({ title, color, orders, kind, handleEvolu
           >{orders.length}</h6>
         </div>
       </div>
-      <div
-        className={'overflow-y-auto overflow-x-hidden max-h-[700px]'}
-        style={{ maxHeight: 'calc(100vh - 275px)' }}
-      >
-        {orders.map((order, index) => (
-          <Card
-            key={order.id}
-            orderId={order.id}
-            items={order.items}
-            customer={order.client}
-            status={order.status}
-            payment={order.paymentMethod}
-            default={order.default}
-            updatedAt={order.createdAt}
-            totalPrice={order.totalPrice}
-            onEvolve={() => handleEvolveAction(index, order.status)}
-            onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}
-            />
-        ))}
-      </div>
+      <AnimatePresence>
+        <div
+          className={'overflow-y-auto overflow-x-hidden max-h-[700px]'}
+          style={{ maxHeight: 'calc(100vh - 275px)' }}
+        >
+          {orders.map((order, index) => (
+            <Card
+              key={order.id}
+              orderId={order.id}
+              items={order.items}
+              customer={order.client}
+              status={order.status}
+              payment={order.paymentMethod}
+              default={order.default}
+              updatedAt={order.createdAt}
+              totalPrice={order.totalPrice}
+              targetColumnRefs={[getColumnRef(kind), columnRefs['recused']]}
+              onEvolve={() => handleEvolveAction(index, order.status)}
+              onDelete={() => handleDeleteAction(index)} onMessage={() => handleSendMessageAction(index)}
+              />
+          ))}
+        </div>
+      </AnimatePresence>
     </div>
   );
 };

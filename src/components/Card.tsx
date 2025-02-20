@@ -1,7 +1,11 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { setMenu, setChatId } from "../redux/appSlice";
 import { Tooltip } from "react-tippy";
 import 'react-tippy/dist/tippy.css'
+import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useReward } from 'react-rewards';
 import {
   faUser,
   faPhone,
@@ -46,6 +50,8 @@ const OrderCard: React.FC<OrderCardProps> = ({
 }) => {
 
   const defaultClass = isDefault ? "animate-glow hover:animate-none" : "border-gray-200";
+  const { reward } = useReward('rewardId', 'emoji', { emoji: ['💸','💰'], elementSize: 12, elementCount: 30, startVelocity: 20 });
+  const dispatch = useDispatch();
 
   const sendMessage = () => {
     const start = `Olá ${customer?.name}, seu pedido foi enviado!\n`;
@@ -98,7 +104,31 @@ const OrderCard: React.FC<OrderCardProps> = ({
     })
   }
   return (
-    <div className={`group-one hover:border-gray-400 bg-white rounded-lg shadow-md p-4 border-2 ${defaultClass} flex flex-col justify-between space-y-4 mb-4 overflow-x-visible`}>
+    <motion.div
+      className={`group-one hover:border-gray-400 bg-white rounded-lg shadow-md p-4 border-2 ${defaultClass} flex flex-col justify-between space-y-4 mb-4 overflow-x-visible`}
+      layout
+      initial={{
+        opacity: 0,
+        x: -100,
+        y: 0
+      }}
+      animate={{
+        opacity: 1,
+        x: 0,
+        y: 0
+      }}
+      exit={{
+        opacity: 0,
+        x: 0,
+        y: 0
+      }}
+      transition={{
+        type: 'spring',
+        duration: 1,
+        stiffness: 100,
+        damping: 5,
+      }}
+      >
       {/* Order Header */}
       <div className="flex justify-between items-center">
         <span className="text-gray-500 text-sm flex items-center space-x-1">
@@ -172,9 +202,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-              <button onClick={() => {onEvolve(); sendMessage()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2 ">
+              <motion.button whileHover={{ scale: 1.5 }} whileTap={{ scale: 0.9 }} onClick={() => {onEvolve(); sendMessage()}} className="hover:bg-orange-300 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2 ">
                 <FontAwesomeIcon className="text-black " icon={faPaperPlane} />
-              </button>
+              </motion.button>
             </Tooltip>
             <Tooltip
               title="Cancelar"
@@ -184,9 +214,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-              <button onClick={() => {onDelete();recuseMessage()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+              <motion.button whileHover={{ scale: 1.5 }} whileTap={{ scale: 0.9 }} onClick={() => {onDelete();recuseMessage()}} className="relative group hover:bg-slate-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
                 <FontAwesomeIcon className="text-black" icon={faBan} />
-              </button>
+              </motion.button>
             </Tooltip>
             <Tooltip
               title="Mandar Mensagem"
@@ -196,9 +226,9 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-              <button onClick={() => {onMessage()}} className="relative group hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+              <motion.button whileHover={{ scale: 1.5 }} whileTap={{ scale: 0.9 }} onClick={ () => {dispatch(setMenu("mensagens"));dispatch(setChatId(customer.phoneNumber))} } className="relative group hover:bg-emerald-400 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
                 <FontAwesomeIcon className="text-black" icon={faCommentDots} />
-              </button>
+              </motion.button>
             </Tooltip>
           </div>
         }
@@ -213,7 +243,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
               duration={100}
               delay={100}
             >
-            <button onClick={() => {onEvolve();finishMessage()}} className=" relative group hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
+            <button onClick={() => {onEvolve();finishMessage();reward()}} className=" relative group hover:bg-green-200 text-gray py-2 rounded-lg shadow-md flex items-center justify-center mt-2 px-2">
                 <FontAwesomeIcon className="text-black" icon={faCheck} />
             </button>
             </Tooltip>
@@ -232,7 +262,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
           </div>
         }
       </div>
-    </div>
+    </motion.div>
   );
 };
 
