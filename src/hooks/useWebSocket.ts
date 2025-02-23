@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { websocketService } from '../services/websocketService';
 
 export function useWebSocket() {
-  const [socket, setSocket] = useState(websocketService.getSocket());
+  const [socket, setSocket] = useState(websocketService.getSocket('back'));
   const [botSocket, setBotSocket] = useState(websocketService.getSocket('bot'));
 
   useEffect(() => {
+    if (!botSocket) return;
+    if (!socket) return;
     const handleApiOpen = () => {
       console.log('WebSocket connected');
       setSocket(websocketService.getSocket());
@@ -22,22 +24,20 @@ export function useWebSocket() {
 
     const handleBotOpen = () => {
       console.log('WebSocket connected');
-      setBotSocket(websocketService.getSocket('bot'));
     };
 
     const handleBotClose = () => {
       console.log('WebSocket disconnected');
-      setSocket(null);
     };
 
     const handleBotMessage = (data: any) => {
       console.log('WebSocket disconnected');
     };
 
-    socket.on('open', handleApiOpen);
-    socket.on('close', handleApiClose);
-    botSocket.on('open', handleBotOpen);
-    botSocket.on('close', handleBotClose);
+    if (!socket.hasListeners("open")) socket.on('open', handleApiOpen);
+    if (!socket.hasListeners("close")) socket.on('close', handleApiClose);
+    if (!botSocket.hasListeners("open")) botSocket.on('open', handleBotOpen);
+    if (!botSocket.hasListeners("close")) botSocket.on('close', handleBotClose);
 
     return () => {
       socket.off('open', handleApiOpen);
@@ -45,9 +45,9 @@ export function useWebSocket() {
       botSocket.off('open', handleBotOpen);
       botSocket.off('close', handleBotClose);
     };
-  }, []);
+  }, [botSocket]);
 
-  const sendEvent = (which: string, event: string, msg?: any) => {
+  const sendEvent = (which: 'bot' | 'back', event: string, msg?: any) => {
     websocketService.sendMessage(which, event, msg)
   }
 

@@ -7,7 +7,7 @@ class WebSocketService extends EventEmitter {
   private botSocket: Socket;
 
   private constructor() {
-    super(); // Initialize EventEmitter
+    super();
     this.socket = io("ws://localhost:3000", {
       transports: ['websocket'],
       reconnection: true,
@@ -15,13 +15,15 @@ class WebSocketService extends EventEmitter {
       reconnectionDelay: 10000,
       reconnectionDelayMax: 30000,
     });
-    this.botSocket = io("ws://localhost:3001", {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 10000,
-      reconnectionDelayMax: 30000,
-    });
+    if (!this.botSocket) {
+      this.botSocket = io("ws://localhost:3001", {
+        transports: ['websocket'],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 10000,
+        reconnectionDelayMax: 30000,
+      });
+    }
   }
 
   public static getInstance(): WebSocketService {
@@ -31,19 +33,19 @@ class WebSocketService extends EventEmitter {
     return WebSocketService.instance;
   }
 
-  public getSocket(which: string = 'back'): Socket {
+  public getSocket(which: string = 'bot'): Socket | null {
     if (which === 'back') {
       return this.socket;
-    } else {
+    } else if (which === 'bot') {
       return this.botSocket;
     }
+    return null;
   }
 
-  public sendMessage(which: string = 'back', event: string, msg?: any) {
-    if (which === 'back') {
-      this.socket.emit(event, msg);
-    } else {
-      this.botSocket.emit(event, msg);
+  public sendMessage(which: 'bot' | 'back' = 'bot' , event: string, msg?: any) {
+    const targetSocket = which === "bot" ? this.botSocket : this.socket;
+    if ( targetSocket ){
+      targetSocket.emit(event,msg)
     }
   }
 }

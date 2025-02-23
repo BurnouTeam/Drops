@@ -98,7 +98,7 @@ const WhatsAppPanel: React.FC = () => {
   const handleSend = () => {
     if ( input.trim() !== ""  ) {
       const msg = { content: input, chatId: chatId, sentAt: new Date() }
-      sendEvent('send-message', msg);
+      sendEvent('bot', 'send-message', msg);
       setCurrentChatMessages( (prev) => {
         return {
           ...prev,
@@ -142,11 +142,23 @@ const WhatsAppPanel: React.FC = () => {
   }, [] )
 
   useEffect( () => {
-    botSocket.on('new-message', (data) => {console.log(data)})
+    if (!botSocket) return;
+
+    const handleNewMessage = (data: any) => {
+      setCurrentChatMessages( (prev) => {
+        return {
+          ...prev,
+          messages: [...prev.messages, {content:data} ]
+        }
+      } )
+    };
+    if (!botSocket.hasListeners('new-message')){
+      botSocket.on('new-message', handleNewMessage)
+    }
     return () => {
         botSocket.off('new-message');
     };
-  }, [] )
+  }, [botSocket] )
 
   useEffect( () => {
     fetchCurrentChat(chatId);
@@ -203,7 +215,7 @@ const WhatsAppPanel: React.FC = () => {
   return (
     <div className="w-full  h-full flex flex-row border border-gray-300">
           {!isSessionActive ? (
-          <div className="flex">
+          <div className="w-full flex">
             <Sidebar chatCards={chats} />
             <div className="w-full h-full flex flex-col">
               <div className="flex items-center px-4 py-[9.5px] bg-secondary border-b border-gray-300">

@@ -88,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ onChangeTab, selectedTab }) => {
               className={`${
                 menu === "configuracoes" ? "bg-primary_light text-secondary font-bold" : "text-secondary"
               } font-semibold flex items-center space-x-2 px-4 py-1.5 rounded-lg hover:text-blue-700`}
-              onClick={() => dispatch(setMenu("mensagens"))}
+              onClick={() => dispatch(setMenu("configuracoes"))}
             >
               <FontAwesomeIcon icon={faGear} />
               <span>Configurações</span>

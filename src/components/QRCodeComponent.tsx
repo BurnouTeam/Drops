@@ -4,24 +4,15 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import { useWebSocket } from '../hooks/useWebSocket';
 
-// Socket connection
-// const socket = io('http://localhost:3001', {
-//     transports: ['websocket'],
-//     reconnection: true,
-//     reconnectionAttempts: 5,
-//     reconnectionDelay: 10000,
-//     reconnectionDelayMax: 30000,
-// });
 
 interface QRCodeComponentProps {
   setSession: React.Dispatch<React.SetStateAction<boolean>>;
-  data: string;
 }
 
-const QRCodeComponent: React.FC<QRCodeComponentProps> = ({ setSession, data }) => {
+const QRCodeComponent: React.FC<QRCodeComponentProps> = ({ setSession }) => {
 
   const [qrCode, setQrCode] = useState('');
-  const { socket } = useWebSocket();
+  const { botSocket } = useWebSocket();
 
   useEffect(() => {
       // Check if session is active
@@ -31,7 +22,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({ setSession, data }) =
               setSession(response.data.isSessionActive);
               console.log("Pegando a sessão: ", response.data.isSessionActive)
               if (!response.data.isSessionActive){
-                socket.emit('request-qr');
+                botSocket.emit('request-qr');
               }
           } catch (error) {
               console.error('Failed to check session:', error);
@@ -41,46 +32,46 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({ setSession, data }) =
       checkSession();
 
 
-      socket.on('qr', (qr) => {
+      botSocket.on('qr', (qr) => {
           setQrCode(qr);
           console.log("QR:", qr)
       });
 
-      socket.on('ready', () => {
+      botSocket.on('ready', () => {
           setSession(true);
           console.log("READY")
       });
 
-      socket.on('authenticated', () => {
+      botSocket.on('authenticated', () => {
         setQrCode(null);
         setSession(true);
         console.log("AUTHENTICATED")
       });
 
-      socket.on('disconnected', () => {
+      botSocket.on('disconnected', () => {
         setQrCode(null);
         console.log("DISCONNECTED")
       });
 
-      socket.on('message', (message) => {
+      botSocket.on('message', (message) => {
         console.log(message)
       });
 
-      socket.on('new-message', (message) => {
+      botSocket.on('new-message', (message) => {
         console.log(message)
       });
 
     return () => {
-      socket.off('qr');
-      socket.off('ready');
-      socket.off('authenticated');
-      socket.off('disconnected');
-      socket.off('new-message');
+      botSocket.off('qr');
+      botSocket.off('ready');
+      botSocket.off('authenticated');
+      botSocket.off('disconnected');
+      botSocket.off('new-message');
     };
   }, []);
 
   const handleDisconnect = () => {
-    socket.emit('disconnect-wpp');
+    botSocket.emit('disconnect-wpp');
   };
 
   return (
